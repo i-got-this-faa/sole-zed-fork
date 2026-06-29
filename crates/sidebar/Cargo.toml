@@ -49,7 +49,7 @@ theme_settings.workspace = true
 ui.workspace = true
 unicode-segmentation.workspace = true
 util.workspace = true
-workspace.workspace = true
+workspace = { workspace = true, features = ["agent-ui"] }
 zed_actions.workspace = true
 
 [dev-dependencies]

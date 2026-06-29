@@ -113,7 +113,7 @@ url.workspace = true
 util.workspace = true
 uuid.workspace = true
 watch.workspace = true
-workspace.workspace = true
+workspace = { workspace = true, features = ["agent-ui"] }
 zed_actions.workspace = true
 image.workspace = true
 reqwest_client = { workspace = true, optional = true }

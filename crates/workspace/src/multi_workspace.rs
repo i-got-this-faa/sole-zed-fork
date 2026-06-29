@@ -20,11 +20,32 @@ use util::ResultExt;
 use util::path_list::PathList;
 use zed_actions::agents_sidebar::ToggleThreadSwitcher;
 
+#[cfg(feature = "agent-ui")]
 use agent_settings::AgentSettings;
 use settings::SidebarDockPosition;
 use ui::{ContextMenu, right_click_menu};
 
 const SIDEBAR_RESIZE_HANDLE_SIZE: Pixels = px(6.0);
+
+#[cfg(feature = "agent-ui")]
+fn agent_sidebar_side(cx: &App) -> SidebarDockPosition {
+    AgentSettings::get_global(cx).sidebar_side
+}
+
+#[cfg(not(feature = "agent-ui"))]
+fn agent_sidebar_side(_cx: &App) -> SidebarDockPosition {
+    SidebarDockPosition::Left
+}
+
+#[cfg(feature = "agent-ui")]
+fn agent_multi_workspace_enabled(cx: &App) -> bool {
+    AgentSettings::get_global(cx).enabled
+}
+
+#[cfg(not(feature = "agent-ui"))]
+fn agent_multi_workspace_enabled(_cx: &App) -> bool {
+    false
+}
 
 use crate::open_remote_project_with_existing_connection;
 use crate::{
@@ -67,7 +88,7 @@ pub fn sidebar_side_context_menu(
     id: impl Into<ElementId>,
     cx: &App,
 ) -> ui::RightClickMenu<ContextMenu> {
-    let current_position = AgentSettings::get_global(cx).sidebar_side;
+    let current_position = agent_sidebar_side(cx);
     right_click_menu(id).menu(move |window, cx| {
         let fs = <dyn fs::Fs>::global(cx);
         ContextMenu::build(window, cx, move |mut menu, _, _cx| {
@@ -332,9 +353,8 @@ impl MultiWorkspace {
         });
         let quit_subscription = cx.on_app_quit(Self::app_will_quit);
         let settings_subscription = cx.observe_global_in::<settings::SettingsStore>(window, {
-            let mut previous_multi_workspace_enabled = !DisableAiSettings::get_global(cx)
-                .disable_ai
-                && AgentSettings::get_global(cx).enabled;
+            let mut previous_multi_workspace_enabled =
+                !DisableAiSettings::get_global(cx).disable_ai && agent_multi_workspace_enabled(cx);
             move |this, window, cx| {
                 let multi_workspace_enabled = this.multi_workspace_enabled(cx);
                 if previous_multi_workspace_enabled && !multi_workspace_enabled {
@@ -409,7 +429,7 @@ impl MultiWorkspace {
     }
 
     pub fn multi_workspace_enabled(&self, cx: &App) -> bool {
-        !DisableAiSettings::get_global(cx).disable_ai && AgentSettings::get_global(cx).enabled
+        !DisableAiSettings::get_global(cx).disable_ai && agent_multi_workspace_enabled(cx)
     }
 
     pub fn toggle_sidebar(&mut self, window: &mut Window, cx: &mut Context<Self>) {

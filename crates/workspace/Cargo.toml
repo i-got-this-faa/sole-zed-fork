@@ -13,7 +13,9 @@ path = "src/workspace.rs"
 doctest = false
 
 [features]
+agent-ui = ["dep:agent_settings"]
 test-support = [
+    "agent-ui",
     "client/test-support",
     "http_client/test-support",
     "db/test-support",
@@ -27,7 +29,7 @@ test-support = [
 
 [dependencies]
 any_vec.workspace = true
-agent_settings.workspace = true
+agent_settings = { workspace = true, optional = true }
 anyhow.workspace = true
 async-recursion.workspace = true
 client.workspace = true

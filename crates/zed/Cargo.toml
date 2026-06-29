@@ -221,7 +221,7 @@ watch.workspace = true
 web_search.workspace = true
 web_search_providers.workspace = true
 which_key.workspace = true
-workspace.workspace = true
+workspace = { workspace = true, features = ["agent-ui"] }
 zed_actions.workspace = true
 zed_env_vars.workspace = true
 zlog.workspace = true

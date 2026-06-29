@@ -4,6 +4,7 @@ use crate::{
     item::{Item, ItemEvent},
     persistence::WorkspaceDb,
 };
+#[cfg(feature = "agent-ui")]
 use agent_settings::AgentSettings;
 use git::Clone as GitClone;
 use gpui::{
@@ -21,6 +22,16 @@ use util::ResultExt;
 use zed_actions::{
     Extensions, OpenKeymap, OpenOnboarding, OpenSettings, assistant::ToggleFocus, command_palette,
 };
+
+#[cfg(feature = "agent-ui")]
+fn agent_ui_enabled(cx: &App) -> bool {
+    AgentSettings::get_global(cx).enabled(cx)
+}
+
+#[cfg(not(feature = "agent-ui"))]
+fn agent_ui_enabled(_cx: &App) -> bool {
+    false
+}
 
 #[derive(PartialEq, Clone, Debug, Deserialize, Serialize, JsonSchema, Action)]
 #[action(namespace = welcome)]
@@ -417,7 +428,7 @@ impl Render for WelcomePage {
         let first_section_entries = first_section.entries.len();
         let mut next_tab_index = first_section_entries + second_section.entries.len();
 
-        let ai_enabled = AgentSettings::get_global(cx).enabled(cx);
+        let ai_enabled = agent_ui_enabled(cx);
 
         let recent_projects = self
             .recent_workspaces
