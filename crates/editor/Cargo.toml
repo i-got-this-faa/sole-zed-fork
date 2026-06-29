@@ -22,6 +22,7 @@ test-support = [
     "theme/test-support",
     "util/test-support",
     "workspace/test-support",
+    "dep:pretty_assertions",
     "tree-sitter-c",
     "tree-sitter-rust",
     "tree-sitter-typescript",
@@ -64,7 +65,7 @@ menu.workspace = true
 multi_buffer.workspace = true
 ordered-float.workspace = true
 parking_lot.workspace = true
-pretty_assertions.workspace = true
+pretty_assertions = { workspace = true, optional = true }
 project.workspace = true
 proptest = { workspace = true, optional = true }
 proptest-derive = { workspace = true, optional = true }
@@ -114,6 +115,7 @@ lsp = { workspace = true, features = ["test-support"] }
 markdown = { workspace = true, features = ["test-support"] }
 multi_buffer = { workspace = true, features = ["test-support"] }
 project = { workspace = true, features = ["test-support"] }
+pretty_assertions.workspace = true
 proptest.workspace = true
 proptest-derive.workspace = true
 release_channel.workspace = true
