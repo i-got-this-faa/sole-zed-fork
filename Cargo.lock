@@ -17163,6 +17163,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "sole_zed_editor_host"
+version = "0.1.0"
+dependencies = [
+ "command_palette",
+ "editor",
+ "file_finder",
+ "git_ui",
+ "gpui",
+ "gpui_tokio",
+ "outline_panel",
+ "project_panel",
+ "release_channel",
+ "search",
+ "semver",
+ "theme",
+ "theme_settings",
+ "workspace",
+]
+
+[[package]]
 name = "spdx"
 version = "0.10.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"

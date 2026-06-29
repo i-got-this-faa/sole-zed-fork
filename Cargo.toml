@@ -187,6 +187,7 @@ members = [
     "crates/snippet",
     "crates/snippet_provider",
     "crates/snippets_ui",
+    "crates/sole_zed_editor_host",
     "crates/sqlez",
     "crates/sqlez_macros",
     "crates/streaming_diff",
@@ -445,6 +446,7 @@ shell_command_parser = { path = "crates/shell_command_parser" }
 snippet = { path = "crates/snippet" }
 snippet_provider = { path = "crates/snippet_provider" }
 snippets_ui = { path = "crates/snippets_ui" }
+sole_zed_editor_host = { path = "crates/sole_zed_editor_host" }
 sqlez = { path = "crates/sqlez" }
 sqlez_macros = { path = "crates/sqlez_macros" }
 streaming_diff = { path = "crates/streaming_diff" }
