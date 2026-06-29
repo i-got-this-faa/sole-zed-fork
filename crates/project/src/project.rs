@@ -19,6 +19,7 @@ pub mod search;
 pub mod task_inventory;
 pub mod task_store;
 pub mod telemetry_snapshot;
+#[cfg(feature = "terminal")]
 pub mod terminals;
 pub mod toolchain_store;
 pub mod trusted_worktrees;
@@ -133,6 +134,7 @@ use std::{
 };
 
 use task_store::TaskStore;
+#[cfg(feature = "terminal")]
 use terminals::Terminals;
 use text::{Anchor, BufferId, Point, Rope};
 use toolchain_store::EmptyToolchainStore;
@@ -239,6 +241,7 @@ pub struct Project {
     buffers_needing_diff: HashSet<WeakEntity<Buffer>>,
     git_diff_debouncer: DebouncedDelay<Self>,
     remotely_created_models: Arc<Mutex<RemotelyCreatedModels>>,
+    #[cfg(feature = "terminal")]
     terminals: Terminals,
     node: Option<NodeRuntime>,
     search_history: SearchHistory,
@@ -293,6 +296,41 @@ impl Drop for RemotelyCreatedModelGuard {
         }
     }
 }
+
+impl Project {
+    pub fn active_entry_directory(&self, cx: &App) -> Option<PathBuf> {
+        let entry_id = self.active_entry()?;
+        let worktree = self.worktree_for_entry(entry_id, cx)?;
+        let worktree = worktree.read(cx);
+        let entry = worktree.entry_for_id(entry_id)?;
+
+        let absolute_path = worktree.absolutize(entry.path.as_ref());
+        if entry.is_dir() {
+            Some(absolute_path)
+        } else {
+            absolute_path.parent().map(|p| p.to_path_buf())
+        }
+    }
+
+    pub fn active_project_directory(&self, cx: &App) -> Option<Arc<Path>> {
+        self.active_entry()
+            .and_then(|entry_id| self.worktree_for_entry(entry_id, cx))
+            .into_iter()
+            .chain(self.worktrees(cx))
+            .find_map(|tree| tree.read(cx).root_dir())
+    }
+
+    pub fn first_project_directory(&self, cx: &App) -> Option<PathBuf> {
+        let worktree = self.worktrees(cx).next()?;
+        let worktree = worktree.read(cx);
+        if worktree.root_entry()?.is_dir() {
+            Some(worktree.abs_path().to_path_buf())
+        } else {
+            None
+        }
+    }
+}
+
 /// Message ordered with respect to buffer operations
 #[derive(Debug)]
 enum BufferOrderedMessage {
@@ -1356,6 +1394,7 @@ impl Project {
 
                 buffers_needing_diff: Default::default(),
                 git_diff_debouncer: DebouncedDelay::new(),
+                #[cfg(feature = "terminal")]
                 terminals: Terminals {
                     local_handles: Vec::new(),
                 },
@@ -1599,6 +1638,7 @@ impl Project {
                 remote_client: Some(remote.clone()),
                 buffers_needing_diff: Default::default(),
                 git_diff_debouncer: DebouncedDelay::new(),
+                #[cfg(feature = "terminal")]
                 terminals: Terminals {
                     local_handles: Vec::new(),
                 },
@@ -1889,6 +1929,7 @@ impl Project {
                 agent_server_store,
                 buffers_needing_diff: Default::default(),
                 git_diff_debouncer: DebouncedDelay::new(),
+                #[cfg(feature = "terminal")]
                 terminals: Terminals {
                     local_handles: Vec::new(),
                 },

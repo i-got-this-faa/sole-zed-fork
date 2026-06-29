@@ -53,7 +53,7 @@ parse_int.workspace = true
 paths.workspace = true
 picker.workspace = true
 pretty_assertions.workspace = true
-project.workspace = true
+project = { workspace = true, features = ["terminal"] }
 rpc.workspace = true
 schemars.workspace = true
 serde.workspace = true

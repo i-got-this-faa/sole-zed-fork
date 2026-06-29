@@ -19,6 +19,7 @@ required-features = ["test-support"]
 path = "tests/integration/project_tests.rs"
 
 [features]
+terminal = ["dep:terminal"]
 test-support = [
     "buffer_diff/test-support",
     "client/test-support",
@@ -31,6 +32,8 @@ test-support = [
     "worktree/test-support",
     "gpui/test-support",
     "dap/test-support",
+    "terminal",
+    "terminal/test-support",
 ]
 
 [dependencies]
@@ -90,7 +93,7 @@ snippet_provider.workspace = true
 sum_tree.workspace = true
 task.workspace = true
 tempfile.workspace = true
-terminal.workspace = true
+terminal = { workspace = true, optional = true }
 text.workspace = true
 toml.workspace = true
 url.workspace = true

@@ -39,7 +39,7 @@ mime.workspace = true
 parking_lot = { workspace = true, optional = true }
 image.workspace = true
 portable-pty.workspace = true
-project.workspace = true
+project = { workspace = true, features = ["terminal"] }
 sandbox.workspace = true
 serde.workspace = true
 serde_json.workspace = true

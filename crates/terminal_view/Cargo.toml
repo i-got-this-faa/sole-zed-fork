@@ -30,7 +30,7 @@ language.workspace = true
 log.workspace = true
 menu.workspace = true
 pretty_assertions.workspace = true
-project.workspace = true
+project = { workspace = true, features = ["terminal"] }
 regex.workspace = true
 task.workspace = true
 schemars.workspace = true
