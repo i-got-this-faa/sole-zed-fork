@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
-use gpui::{App, AppContext as _};
+use gpui::App;
+#[cfg(feature = "search")]
+use gpui::AppContext as _;
 use workspace::AppState;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -10,18 +12,18 @@ pub struct InitStep {
 }
 
 pub const CORE_DIRECT_DEPENDENCIES: &[&str] = &[
-    "command_palette",
     "editor",
     "gpui",
     "gpui_tokio",
-    "outline_panel",
     "release_channel",
-    "search",
     "semver",
     "theme",
     "theme_settings",
     "workspace",
 ];
+
+pub const EDITOR_TOOLS_DIRECT_DEPENDENCIES: &[&str] =
+    &["command_palette", "outline_panel", "search"];
 
 pub const PROJECT_UI_DIRECT_DEPENDENCIES: &[&str] = &["file_finder", "git_ui", "project_panel"];
 
@@ -64,12 +66,15 @@ pub const INIT_STEPS: &[InitStep] = &[
         responsibility: "provide version metadata expected by editor/workspace UI",
     },
     InitStep {
-        crate_name: "command_palette",
-        responsibility: "register command palette integration for workspace actions",
-    },
-    InitStep {
         crate_name: "editor",
         responsibility: "register the Zed editor item and editor actions",
+    },
+];
+
+pub const EDITOR_TOOLS_INIT_STEPS: &[InitStep] = &[
+    InitStep {
+        crate_name: "command_palette",
+        responsibility: "register command palette integration for workspace actions",
     },
     InitStep {
         crate_name: "outline_panel",
@@ -101,13 +106,37 @@ pub fn init(app_state: Arc<AppState>, cx: &mut App) {
     theme_settings::init(theme::LoadThemes::JustBase, cx);
     workspace::init(app_state, cx);
     release_channel::init(semver::Version::new(0, 0, 0), cx);
-    command_palette::init(cx);
+    init_command_palette(cx);
     editor::init(cx);
-    outline_panel::init(cx);
-    search::init(cx);
-    register_buffer_search_callbacks(cx);
+    init_outline(cx);
+    init_search(cx);
     init_project_ui(cx);
 }
+
+#[cfg(feature = "command-palette")]
+fn init_command_palette(cx: &mut App) {
+    command_palette::init(cx);
+}
+
+#[cfg(not(feature = "command-palette"))]
+fn init_command_palette(_cx: &mut App) {}
+
+#[cfg(feature = "outline")]
+fn init_outline(cx: &mut App) {
+    outline_panel::init(cx);
+}
+
+#[cfg(not(feature = "outline"))]
+fn init_outline(_cx: &mut App) {}
+
+#[cfg(feature = "search")]
+fn init_search(cx: &mut App) {
+    search::init(cx);
+    register_buffer_search_callbacks(cx);
+}
+
+#[cfg(not(feature = "search"))]
+fn init_search(_cx: &mut App) {}
 
 #[cfg(feature = "project-ui")]
 fn init_project_ui(cx: &mut App) {
@@ -119,6 +148,7 @@ fn init_project_ui(cx: &mut App) {
 #[cfg(not(feature = "project-ui"))]
 fn init_project_ui(_cx: &mut App) {}
 
+#[cfg(feature = "search")]
 fn register_buffer_search_callbacks(cx: &mut App) {
     cx.set_global(workspace::PaneSearchBarCallbacks {
         setup_search_bar: |languages, toolbar, window, cx| {
@@ -154,12 +184,36 @@ mod tests {
 
         assert!(step_names.contains(&"workspace"));
         assert!(step_names.contains(&"editor"));
-        assert!(step_names.contains(&"outline_panel"));
-        assert!(step_names.contains(&"search"));
+        assert!(!step_names.contains(&"command_palette"));
+        assert!(!step_names.contains(&"outline_panel"));
+        assert!(!step_names.contains(&"search"));
         assert!(!step_names.contains(&"project_panel"));
         assert!(!step_names.contains(&"terminal_view"));
         assert!(!step_names.contains(&"agent_ui"));
         assert!(!step_names.contains(&"collab_ui"));
+    }
+
+    #[test]
+    fn editor_tools_surface_is_default_off() {
+        let core_step_names = INIT_STEPS
+            .iter()
+            .map(|step| step.crate_name)
+            .collect::<Vec<_>>();
+
+        for dependency in EDITOR_TOOLS_DIRECT_DEPENDENCIES {
+            assert!(
+                !CORE_DIRECT_DEPENDENCIES.contains(dependency),
+                "{dependency} must stay out of the default core host boundary"
+            );
+        }
+
+        for step in EDITOR_TOOLS_INIT_STEPS {
+            assert!(
+                !core_step_names.contains(&step.crate_name),
+                "{} must stay out of the default init sequence",
+                step.crate_name
+            );
+        }
     }
 
     #[test]

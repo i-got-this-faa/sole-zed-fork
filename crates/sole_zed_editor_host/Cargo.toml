@@ -14,20 +14,24 @@ doctest = false
 
 [features]
 default = []
+command-palette = ["dep:command_palette"]
+editor-tools = ["command-palette", "outline", "search"]
+outline = ["dep:outline_panel"]
 project-ui = ["dep:file_finder", "dep:git_ui", "dep:project_panel"]
+search = ["dep:search"]
 
 [dependencies]
-command_palette.workspace = true
 editor.workspace = true
 gpui.workspace = true
 gpui_tokio.workspace = true
-outline_panel.workspace = true
 release_channel.workspace = true
-search.workspace = true
 semver.workspace = true
 theme.workspace = true
 theme_settings.workspace = true
 workspace.workspace = true
+command_palette = { workspace = true, optional = true }
 file_finder = { workspace = true, optional = true }
 git_ui = { workspace = true, optional = true }
+outline_panel = { workspace = true, optional = true }
 project_panel = { workspace = true, optional = true }
+search = { workspace = true, optional = true }
