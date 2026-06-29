@@ -12,18 +12,22 @@ workspace = true
 path = "src/sole_zed_editor_host.rs"
 doctest = false
 
+[features]
+default = []
+project-ui = ["dep:file_finder", "dep:git_ui", "dep:project_panel"]
+
 [dependencies]
 command_palette.workspace = true
 editor.workspace = true
-file_finder.workspace = true
-git_ui.workspace = true
 gpui.workspace = true
 gpui_tokio.workspace = true
 outline_panel.workspace = true
-project_panel.workspace = true
 release_channel.workspace = true
 search.workspace = true
 semver.workspace = true
 theme.workspace = true
 theme_settings.workspace = true
 workspace.workspace = true
+file_finder = { workspace = true, optional = true }
+git_ui = { workspace = true, optional = true }
+project_panel = { workspace = true, optional = true }

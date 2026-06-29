@@ -9,15 +9,12 @@ pub struct InitStep {
     pub responsibility: &'static str,
 }
 
-pub const DIRECT_DEPENDENCIES: &[&str] = &[
+pub const CORE_DIRECT_DEPENDENCIES: &[&str] = &[
     "command_palette",
     "editor",
-    "file_finder",
-    "git_ui",
     "gpui",
     "gpui_tokio",
     "outline_panel",
-    "project_panel",
     "release_channel",
     "search",
     "semver",
@@ -25,6 +22,8 @@ pub const DIRECT_DEPENDENCIES: &[&str] = &[
     "theme_settings",
     "workspace",
 ];
+
+pub const PROJECT_UI_DIRECT_DEPENDENCIES: &[&str] = &["file_finder", "git_ui", "project_panel"];
 
 pub const OMITTED_PRODUCT_SURFACES: &[&str] = &[
     "agent",
@@ -73,6 +72,17 @@ pub const INIT_STEPS: &[InitStep] = &[
         responsibility: "register the Zed editor item and editor actions",
     },
     InitStep {
+        crate_name: "outline_panel",
+        responsibility: "register the document outline panel",
+    },
+    InitStep {
+        crate_name: "search",
+        responsibility: "register buffer and project search",
+    },
+];
+
+pub const PROJECT_UI_INIT_STEPS: &[InitStep] = &[
+    InitStep {
         crate_name: "git_ui",
         responsibility: "register editor/workspace git UI affordances",
     },
@@ -84,14 +94,6 @@ pub const INIT_STEPS: &[InitStep] = &[
         crate_name: "project_panel",
         responsibility: "register the project tree panel",
     },
-    InitStep {
-        crate_name: "outline_panel",
-        responsibility: "register the document outline panel",
-    },
-    InitStep {
-        crate_name: "search",
-        responsibility: "register buffer and project search",
-    },
 ];
 
 pub fn init(app_state: Arc<AppState>, cx: &mut App) {
@@ -101,13 +103,21 @@ pub fn init(app_state: Arc<AppState>, cx: &mut App) {
     release_channel::init(semver::Version::new(0, 0, 0), cx);
     command_palette::init(cx);
     editor::init(cx);
-    git_ui::init(cx);
-    file_finder::init(cx);
-    project_panel::init(cx);
     outline_panel::init(cx);
     search::init(cx);
     register_buffer_search_callbacks(cx);
+    init_project_ui(cx);
 }
+
+#[cfg(feature = "project-ui")]
+fn init_project_ui(cx: &mut App) {
+    git_ui::init(cx);
+    file_finder::init(cx);
+    project_panel::init(cx);
+}
+
+#[cfg(not(feature = "project-ui"))]
+fn init_project_ui(_cx: &mut App) {}
 
 fn register_buffer_search_callbacks(cx: &mut App) {
     cx.set_global(workspace::PaneSearchBarCallbacks {
@@ -129,7 +139,7 @@ mod tests {
     fn omitted_product_surfaces_are_not_direct_boundary_dependencies() {
         for omitted in OMITTED_PRODUCT_SURFACES {
             assert!(
-                !DIRECT_DEPENDENCIES.contains(omitted),
+                !CORE_DIRECT_DEPENDENCIES.contains(omitted),
                 "{omitted} must stay outside the direct SOLE editor host boundary"
             );
         }
@@ -144,11 +154,34 @@ mod tests {
 
         assert!(step_names.contains(&"workspace"));
         assert!(step_names.contains(&"editor"));
-        assert!(step_names.contains(&"project_panel"));
         assert!(step_names.contains(&"outline_panel"));
         assert!(step_names.contains(&"search"));
+        assert!(!step_names.contains(&"project_panel"));
         assert!(!step_names.contains(&"terminal_view"));
         assert!(!step_names.contains(&"agent_ui"));
         assert!(!step_names.contains(&"collab_ui"));
+    }
+
+    #[test]
+    fn project_ui_surface_is_default_off() {
+        let core_step_names = INIT_STEPS
+            .iter()
+            .map(|step| step.crate_name)
+            .collect::<Vec<_>>();
+
+        for dependency in PROJECT_UI_DIRECT_DEPENDENCIES {
+            assert!(
+                !CORE_DIRECT_DEPENDENCIES.contains(dependency),
+                "{dependency} must stay out of the default core host boundary"
+            );
+        }
+
+        for step in PROJECT_UI_INIT_STEPS {
+            assert!(
+                !core_step_names.contains(&step.crate_name),
+                "{} must stay out of the default init sequence",
+                step.crate_name
+            );
+        }
     }
 }
