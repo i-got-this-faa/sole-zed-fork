@@ -20,7 +20,6 @@ name = "remote_server"
 default = []
 agent-server-downloads = ["project/agent-server-downloads"]
 agent-registry = []
-debug-embed = ["dep:rust-embed"]
 telemetry = ["dep:telemetry"]
 test-support = ["fs/test-support"]
 
@@ -61,7 +60,6 @@ release_channel.workspace = true
 remote.workspace = true
 reqwest_client.workspace = true
 rpc.workspace = true
-rust-embed = { workspace = true, optional = true, features = ["debug-embed"] }
 semver.workspace = true
 serde.workspace = true
 serde_json.workspace = true
@@ -113,4 +111,4 @@ cargo_toml.workspace = true
 toml.workspace = true
 
 [package.metadata.cargo-machete]
-ignored = ["rust-embed", "paths"]
+ignored = ["paths"]
