@@ -2,6 +2,7 @@ use anyhow::{Context as _, Result, anyhow};
 use client::ProjectId;
 use collections::HashMap;
 use collections::HashSet;
+#[cfg(feature = "remote-profiling")]
 use gpui::TasksIncluded;
 use language::File;
 use lsp::LanguageServerId;
@@ -81,6 +82,7 @@ pub struct HeadlessProject {
     pub extensions: Entity<HeadlessExtensionStore>,
     pub git_store: Entity<GitStore>,
     pub environment: Entity<ProjectEnvironment>,
+    #[cfg(feature = "remote-profiling")]
     pub profiling_collector: gpui::ProfilingCollector,
     // Used mostly to keep alive the toolchain store for RPC handlers.
     // Local variant is used within LSP store, but that's a separate entity.
@@ -116,6 +118,7 @@ impl HeadlessProject {
         let http_client = app_state.http_client;
         let node_runtime = app_state.node_runtime;
         let languages = app_state.languages;
+        #[cfg(feature = "remote-profiling")]
         let startup_time = app_state.startup_time;
         #[cfg(feature = "extension-host")]
         let proxy = app_state.extension_host_proxy;
@@ -320,6 +323,7 @@ impl HeadlessProject {
         session.add_request_handler(cx.weak_entity(), Self::handle_shutdown_remote_server);
         session.add_request_handler(cx.weak_entity(), Self::handle_ping);
         session.add_request_handler(cx.weak_entity(), Self::handle_get_processes);
+        #[cfg(feature = "remote-profiling")]
         session.add_request_handler(cx.weak_entity(), Self::handle_get_remote_profiling_data);
 
         session.add_entity_request_handler(Self::handle_add_worktree);
@@ -396,6 +400,7 @@ impl HeadlessProject {
             extensions,
             git_store,
             environment,
+            #[cfg(feature = "remote-profiling")]
             profiling_collector: gpui::ProfilingCollector::new(startup_time),
             _toolchain_store: toolchain_store,
             #[cfg(feature = "kernel-processes")]
@@ -1306,6 +1311,7 @@ impl HeadlessProject {
         Ok(proto::GetProcessesResponse { processes })
     }
 
+    #[cfg(feature = "remote-profiling")]
     async fn handle_get_remote_profiling_data(
         this: Entity<Self>,
         envelope: TypedEnvelope<proto::GetRemoteProfilingData>,
