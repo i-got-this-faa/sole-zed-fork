@@ -23,7 +23,13 @@ agent-registry = []
 agent-server-store = []
 context-server-store = []
 crash-handler = ["dep:crashes"]
-debug-adapters = ["dep:dap_adapters", "dep:debug_adapter_extension", "extension-host"]
+debug-adapters = [
+    "debugger-rpc",
+    "dep:dap_adapters",
+    "dep:debug_adapter_extension",
+    "extension-host",
+]
+debugger-rpc = []
 extension-host = ["dep:extension", "dep:extension_host"]
 git-hosting-providers = ["dep:git_hosting_providers"]
 json-schema-store = ["dep:json_schema_store"]

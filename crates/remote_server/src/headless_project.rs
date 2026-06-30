@@ -354,8 +354,10 @@ impl HeadlessProject {
         LspStore::init(&session);
         TaskStore::init(Some(&session));
         ToolchainStore::init(&session);
+        #[cfg(feature = "debugger-rpc")]
         DapStore::init(&session, cx);
         // todo(debugger): Re init breakpoint store when we set it up for collab
+        #[cfg(feature = "debugger-rpc")]
         BreakpointStore::init(&session);
         GitStore::init(&session);
         #[cfg(feature = "agent-server-store")]
