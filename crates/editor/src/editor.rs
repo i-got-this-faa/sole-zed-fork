@@ -11,6 +11,14 @@
 //! All other submodules and structs are mostly concerned with holding editor data about the way it displays current buffer region(s).
 //!
 //! If you're looking to improve Vim mode, you should check out Vim crate that wraps Editor and overrides its behavior.
+
+macro_rules! telemetry_event {
+    ($($tt:tt)*) => {
+        #[cfg(feature = "telemetry")]
+        telemetry::event!($($tt)*);
+    };
+}
+
 pub mod actions;
 pub mod blink_manager;
 mod bracket_colorization;
@@ -10149,7 +10157,7 @@ impl Editor {
         let event_type = reported_event.event_type();
 
         if let ReportEditorEvent::Saved { auto_saved } = reported_event {
-            telemetry::event!(
+            telemetry_event!(
                 event_type,
                 type = if auto_saved {"autosave"} else {"manual"},
                 file_extension,
@@ -10160,7 +10168,7 @@ impl Editor {
                 is_via_ssh = project.is_via_remote_server(),
             );
         } else {
-            telemetry::event!(
+            telemetry_event!(
                 event_type,
                 file_extension,
                 vim_mode,

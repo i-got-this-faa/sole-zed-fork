@@ -13,7 +13,9 @@ path = "src/editor.rs"
 doctest = false
 
 [features]
+telemetry = ["dep:telemetry"]
 test-support = [
+    "telemetry",
     "text/test-support",
     "language/test-support",
     "gpui/test-support",
@@ -81,7 +83,7 @@ smallvec.workspace = true
 snippet.workspace = true
 sum_tree.workspace = true
 task.workspace = true
-telemetry.workspace = true
+telemetry = { workspace = true, optional = true }
 text.workspace = true
 time.workspace = true
 theme.workspace = true

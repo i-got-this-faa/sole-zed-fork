@@ -14,8 +14,10 @@ doctest = false
 
 [features]
 agent-ui = ["dep:agent_settings"]
+telemetry = ["dep:telemetry"]
 test-support = [
     "agent-ui",
+    "telemetry",
     "client/test-support",
     "http_client/test-support",
     "db/test-support",
@@ -64,7 +66,7 @@ smallvec.workspace = true
 sqlez.workspace = true
 strum.workspace = true
 task.workspace = true
-telemetry.workspace = true
+telemetry = { workspace = true, optional = true }
 theme.workspace = true
 theme_settings.workspace = true
 ui.workspace = true

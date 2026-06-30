@@ -1642,7 +1642,7 @@ impl Editor {
             true => "Edit Prediction Accepted",
             false => "Edit Prediction Discarded",
         };
-        telemetry::event!(
+        telemetry_event!(
             event_type,
             provider = provider.name(),
             prediction_id = id,
