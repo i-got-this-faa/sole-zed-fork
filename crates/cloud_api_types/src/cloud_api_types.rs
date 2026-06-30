@@ -18,9 +18,9 @@ pub use crate::plan::*;
 pub use crate::timestamp::Timestamp;
 pub use cloud_llm_client::{
     CompletionRequestStatus, CurrentUsage, EDIT_PREDICTIONS_USAGE_AMOUNT_HEADER_NAME,
-    EDIT_PREDICTIONS_USAGE_LIMIT_HEADER_NAME, EXPIRED_LLM_TOKEN_HEADER_NAME,
-    OUTDATED_LLM_TOKEN_HEADER_NAME, PredictEditsRequestTrigger, UsageData, UsageLimit,
-    WebSearchBody, WebSearchResponse,
+    EDIT_PREDICTIONS_USAGE_LIMIT_HEADER_NAME, EXPIRED_LLM_TOKEN_HEADER_NAME, LanguageModel,
+    LanguageModelId, LanguageModelProvider, ListModelsResponse, OUTDATED_LLM_TOKEN_HEADER_NAME,
+    PredictEditsRequestTrigger, UsageData, UsageLimit, WebSearchBody, WebSearchResponse,
 };
 
 pub const ZED_SYSTEM_ID_HEADER_NAME: &str = "x-zed-system-id";

@@ -555,6 +555,10 @@ mod tests {
     use super::*;
     use client::{Credentials, test::make_get_authenticated_user_response};
     use clock::FakeSystemClock;
+    use cloud_api_types::{
+        LanguageModel as CloudLanguageModel, LanguageModelId as CloudLanguageModelId,
+        LanguageModelProvider as CloudLanguageModelProviderKind, ListModelsResponse,
+    };
     use feature_flags::FeatureFlagAppExt as _;
     use gpui::TestAppContext;
     use http_client::{FakeHttpClient, Method, Response};
@@ -662,11 +666,9 @@ mod tests {
         sign_in_task
     }
 
-    fn test_cloud_model(
-        model_id: cloud_llm_client::LanguageModelId,
-    ) -> cloud_llm_client::LanguageModel {
-        cloud_llm_client::LanguageModel {
-            provider: cloud_llm_client::LanguageModelProvider::Anthropic,
+    fn test_cloud_model(model_id: CloudLanguageModelId) -> CloudLanguageModel {
+        CloudLanguageModel {
+            provider: CloudLanguageModelProviderKind::Anthropic,
             id: model_id,
             display_name: "Test Model".to_string(),
             is_latest: true,
@@ -782,7 +784,7 @@ mod tests {
     #[gpui::test]
     async fn provided_models_surface_disabled_reason(cx: &mut TestAppContext) {
         let (_client, _user_store, provider) = cx.update(init_test);
-        let model_id = cloud_llm_client::LanguageModelId(Arc::from("disabled-model"));
+        let model_id = CloudLanguageModelId(Arc::from("disabled-model"));
         let disabled_reason = "This model is temporarily unavailable.";
 
         cx.update(|cx| {
@@ -791,7 +793,7 @@ mod tests {
                 let mut model = test_cloud_model(model_id.clone());
                 model.is_disabled = true;
                 model.disabled_reason = Some(disabled_reason.to_string());
-                cloud_model_provider.update_models(cloud_llm_client::ListModelsResponse {
+                cloud_model_provider.update_models(ListModelsResponse {
                     models: vec![model],
                     default_model: Some(model_id.clone()),
                     default_fast_model: None,
@@ -835,11 +837,11 @@ mod tests {
         sign_in_task.await.expect("sign-in should complete");
         cx.executor().run_until_parked();
 
-        let model_id = cloud_llm_client::LanguageModelId(Arc::from("test-model"));
+        let model_id = CloudLanguageModelId(Arc::from("test-model"));
         cx.update(|cx| {
             let cloud_model_provider = provider.state.read(cx).provider.clone();
             cloud_model_provider.update(cx, |cloud_model_provider, cx| {
-                cloud_model_provider.update_models(cloud_llm_client::ListModelsResponse {
+                cloud_model_provider.update_models(ListModelsResponse {
                     models: vec![test_cloud_model(model_id.clone())],
                     default_model: Some(model_id.clone()),
                     default_fast_model: None,
