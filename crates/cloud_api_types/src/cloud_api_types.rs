@@ -16,6 +16,8 @@ pub use crate::extension::*;
 pub use crate::known_or_unknown::*;
 pub use crate::plan::*;
 pub use crate::timestamp::Timestamp;
+#[cfg(feature = "predict-edits")]
+pub use cloud_llm_client::predict_edits_v3;
 pub use cloud_llm_client::{
     CompletionRequestStatus, CurrentUsage, EDIT_PREDICTIONS_USAGE_AMOUNT_HEADER_NAME,
     EDIT_PREDICTIONS_USAGE_LIMIT_HEADER_NAME, EXPIRED_LLM_TOKEN_HEADER_NAME, LanguageModel,

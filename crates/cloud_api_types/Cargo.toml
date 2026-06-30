@@ -11,6 +11,9 @@ workspace = true
 [lib]
 path = "src/cloud_api_types.rs"
 
+[features]
+predict-edits = ["cloud_llm_client/predict-edits"]
+
 [dependencies]
 anyhow.workspace = true
 chrono.workspace = true
