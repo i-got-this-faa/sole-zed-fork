@@ -20,12 +20,14 @@ name = "remote_server"
 default = []
 agent-server-downloads = ["project/agent-server-downloads"]
 agent-registry = []
+crash-handler = ["dep:crashes"]
 debug-adapters = ["dep:dap_adapters", "dep:debug_adapter_extension"]
 git-hosting-providers = ["dep:git_hosting_providers"]
 json-schema-store = ["dep:json_schema_store"]
 language-extension = ["dep:language_extension"]
 telemetry = ["dep:telemetry"]
 test-support = [
+    "crash-handler",
     "debug-adapters",
     "fs/test-support",
     "git-hosting-providers",
@@ -40,7 +42,7 @@ askpass.workspace = true
 clap.workspace = true
 client.workspace = true
 collections.workspace = true
-crashes.workspace = true
+crashes = { workspace = true, optional = true }
 dap_adapters = { workspace = true, optional = true }
 debug_adapter_extension = { workspace = true, optional = true }
 env_logger.workspace = true

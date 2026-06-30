@@ -29,9 +29,15 @@ fn main() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    if let Some(socket) = &cli.crash_handler {
-        crashes::crash_server(socket.as_path(), paths::logs_dir().clone());
-        return Ok(());
+    if cli.crash_handler.is_some() {
+        #[cfg(feature = "crash-handler")]
+        {
+            let socket = cli.crash_handler.as_ref().expect("checked above");
+            crashes::crash_server(socket.as_path(), paths::logs_dir().clone());
+            return Ok(());
+        }
+        #[cfg(not(feature = "crash-handler"))]
+        anyhow::bail!("remote server crash handling requires the `crash-handler` feature");
     }
 
     if cli.printenv {
