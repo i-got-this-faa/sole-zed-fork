@@ -19,6 +19,7 @@ name = "remote_server"
 [features]
 default = []
 debug-embed = ["dep:rust-embed"]
+telemetry = ["dep:telemetry"]
 test-support = ["fs/test-support"]
 
 [dependencies]
@@ -68,7 +69,7 @@ shellexpand.workspace = true
 smol.workspace = true
 sysinfo.workspace = true
 task.workspace = true
-telemetry.workspace = true
+telemetry = { workspace = true, optional = true }
 util.workspace = true
 watch.workspace = true
 worktree.workspace = true

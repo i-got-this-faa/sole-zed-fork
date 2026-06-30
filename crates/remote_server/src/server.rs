@@ -312,6 +312,7 @@ fn init_logging_server(log_file_path: &Path) -> Result<Receiver<Vec<u8>>> {
 /// `telemetry::event!` calls are silently dropped. The client attributes these
 /// events to the remote host using the platform it already detected during
 /// connection setup, so no OS metadata needs to be sent here.
+#[cfg(feature = "telemetry")]
 fn init_telemetry_forwarding(session: AnyProtoClient, cx: &mut App) {
     let (tx, mut rx) = mpsc::unbounded::<telemetry::Event>();
     telemetry::init(tx);
@@ -667,6 +668,7 @@ pub fn execute_run(
 
         log::info!("gpui app started, initializing server");
         let session = start_server(listeners, log_rx, cx, is_wsl_interop);
+        #[cfg(feature = "telemetry")]
         init_telemetry_forwarding(session.clone(), cx);
         trusted_worktrees::init(HashMap::default(), cx);
 
