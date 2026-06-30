@@ -39,6 +39,7 @@ use rpc::{
     AnyProtoClient, TypedEnvelope,
     proto::{self, REMOTE_SERVER_PEER_ID, REMOTE_SERVER_PROJECT_ID},
 };
+#[cfg(feature = "kernel-processes")]
 use smol::process::Child;
 
 use settings::initial_server_settings_content;
@@ -79,6 +80,7 @@ pub struct HeadlessProject {
     // Used mostly to keep alive the toolchain store for RPC handlers.
     // Local variant is used within LSP store, but that's a separate entity.
     pub _toolchain_store: Entity<ToolchainStore>,
+    #[cfg(feature = "kernel-processes")]
     pub kernels: HashMap<String, Child>,
 }
 
@@ -345,8 +347,11 @@ impl HeadlessProject {
             );
         }
 
-        session.add_request_handler(cx.weak_entity(), Self::handle_spawn_kernel);
-        session.add_request_handler(cx.weak_entity(), Self::handle_kill_kernel);
+        #[cfg(feature = "kernel-processes")]
+        {
+            session.add_request_handler(cx.weak_entity(), Self::handle_spawn_kernel);
+            session.add_request_handler(cx.weak_entity(), Self::handle_kill_kernel);
+        }
 
         BufferStore::init(&session);
         WorktreeStore::init(&session);
@@ -387,6 +392,7 @@ impl HeadlessProject {
             environment,
             profiling_collector: gpui::ProfilingCollector::new(startup_time),
             _toolchain_store: toolchain_store,
+            #[cfg(feature = "kernel-processes")]
             kernels: Default::default(),
         }
     }
@@ -945,6 +951,7 @@ impl HeadlessProject {
         })
     }
 
+    #[cfg(feature = "kernel-processes")]
     async fn handle_spawn_kernel(
         this: Entity<Self>,
         envelope: TypedEnvelope<proto::SpawnKernel>,
@@ -1066,6 +1073,7 @@ impl HeadlessProject {
         })
     }
 
+    #[cfg(feature = "kernel-processes")]
     async fn handle_kill_kernel(
         this: Entity<Self>,
         envelope: TypedEnvelope<proto::KillKernel>,
@@ -1376,6 +1384,7 @@ fn prompt_to_proto(
     }
 }
 
+#[cfg(feature = "kernel-processes")]
 fn find_venv_python(working_directory: &str) -> Option<std::path::PathBuf> {
     let wd = std::path::Path::new(working_directory);
     for dir_name in &[".venv", "venv", ".env", "env"] {

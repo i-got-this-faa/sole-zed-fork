@@ -33,6 +33,7 @@ debugger-rpc = []
 extension-host = ["dep:extension", "dep:extension_host"]
 git-hosting-providers = ["dep:git_hosting_providers"]
 json-schema-store = ["dep:json_schema_store"]
+kernel-processes = ["dep:uuid"]
 language-extension = ["dep:language_extension", "extension-host"]
 telemetry = ["dep:telemetry"]
 test-support = [
@@ -44,6 +45,7 @@ test-support = [
     "fs/test-support",
     "git-hosting-providers",
     "json-schema-store",
+    "kernel-processes",
     "language-extension",
 ]
 
@@ -97,7 +99,7 @@ watch.workspace = true
 worktree.workspace = true
 thiserror.workspace = true
 rayon.workspace = true
-uuid = { workspace = true, features = ["v4"] }
+uuid = { workspace = true, features = ["v4"], optional = true }
 
 [target.'cfg(windows)'.dependencies]
 windows.workspace = true
