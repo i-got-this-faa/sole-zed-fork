@@ -22,7 +22,6 @@ use project::{
     ToolchainStore, WorktreeId,
     agent_server_store::AgentServerStore,
     buffer_store::{BufferStore, BufferStoreEvent},
-    context_server_store::ContextServerStore,
     debugger::{breakpoint_store::BreakpointStore, dap_store::DapStore},
     git_store::GitStore,
     image_store::ImageId,
@@ -33,6 +32,8 @@ use project::{
     trusted_worktrees::{PathTrust, RemoteHostLocation, TrustedWorktrees},
     worktree_store::{WorktreeIdCounter, WorktreeStore},
 };
+#[cfg(feature = "context-server-store")]
+use project::context_server_store::ContextServerStore;
 use rpc::{
     AnyProtoClient, TypedEnvelope,
     proto::{self, REMOTE_SERVER_PEER_ID, REMOTE_SERVER_PROJECT_ID},
@@ -63,6 +64,7 @@ pub struct HeadlessProject {
     pub dap_store: Entity<DapStore>,
     pub breakpoint_store: Entity<BreakpointStore>,
     pub agent_server_store: Entity<AgentServerStore>,
+    #[cfg(feature = "context-server-store")]
     pub context_server_store: Entity<ContextServerStore>,
     pub settings_observer: Entity<SettingsObserver>,
     pub next_entry_id: Arc<AtomicUsize>,
@@ -254,6 +256,7 @@ impl HeadlessProject {
             agent_server_store
         });
 
+        #[cfg(feature = "context-server-store")]
         let context_server_store = cx.new(|cx| {
             let mut context_server_store =
                 ContextServerStore::local(worktree_store.clone(), None, true, cx);
@@ -298,6 +301,7 @@ impl HeadlessProject {
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &settings_observer);
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &git_store);
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &agent_server_store);
+        #[cfg(feature = "context-server-store")]
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &context_server_store);
 
         session.add_request_handler(cx.weak_entity(), Self::handle_list_remote_directory);
@@ -351,6 +355,7 @@ impl HeadlessProject {
         BreakpointStore::init(&session);
         GitStore::init(&session);
         AgentServerStore::init_headless(&session);
+        #[cfg(feature = "context-server-store")]
         ContextServerStore::init_headless(&session);
 
         HeadlessProject {
@@ -365,6 +370,7 @@ impl HeadlessProject {
             dap_store,
             breakpoint_store,
             agent_server_store,
+            #[cfg(feature = "context-server-store")]
             context_server_store,
             languages,
             #[cfg(feature = "extension-host")]
