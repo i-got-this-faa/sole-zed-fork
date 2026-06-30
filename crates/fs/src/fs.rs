@@ -1,3 +1,10 @@
+macro_rules! telemetry_event {
+    ($($tt:tt)*) => {
+        #[cfg(feature = "telemetry")]
+        telemetry::event!($($tt)*);
+    };
+}
+
 pub mod fs_watcher;
 
 pub use fs_watcher::requires_poll_watcher;

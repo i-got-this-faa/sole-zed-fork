@@ -37,7 +37,7 @@ thiserror.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 smol.workspace = true
-telemetry.workspace = true
+telemetry = { workspace = true, optional = true }
 tempfile.workspace = true
 text.workspace = true
 time.workspace = true
@@ -62,4 +62,5 @@ gpui = { workspace = true, features = ["test-support"] }
 git = { workspace = true, features = ["test-support"] }
 
 [features]
-test-support = ["gpui/test-support", "git/test-support", "util/test-support"]
+telemetry = ["dep:telemetry"]
+test-support = ["telemetry", "gpui/test-support", "git/test-support", "util/test-support"]
