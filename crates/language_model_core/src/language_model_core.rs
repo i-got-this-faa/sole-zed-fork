@@ -6,7 +6,7 @@ pub mod tool_schema;
 pub mod util;
 
 use anyhow::{Result, anyhow};
-use cloud_llm_client::CompletionRequestStatus;
+use cloud_api_types::CompletionRequestStatus;
 use http_client::{StatusCode, http};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
