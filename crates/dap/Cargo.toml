@@ -13,7 +13,9 @@ path = "src/dap.rs"
 doctest = false
 
 [features]
+telemetry = ["dep:telemetry"]
 test-support = [
+    "telemetry",
     "gpui/test-support",
     "util/test-support",
     "task/test-support",
@@ -47,7 +49,7 @@ settings.workspace = true
 smallvec.workspace = true
 smol.workspace = true
 task.workspace = true
-telemetry.workspace = true
+telemetry = { workspace = true, optional = true }
 util.workspace = true
 
 [target.'cfg(not(windows))'.dependencies]

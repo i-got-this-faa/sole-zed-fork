@@ -31,7 +31,7 @@ bitflags.workspace = true
 client.workspace = true
 collections.workspace = true
 command_palette_hooks.workspace = true
-dap.workspace = true
+dap = { workspace = true, features = ["telemetry"] }
 dap_adapters = { workspace = true, optional = true }
 db.workspace = true
 debugger_tools.workspace = true
