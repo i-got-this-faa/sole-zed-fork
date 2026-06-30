@@ -82,7 +82,7 @@ paths.workspace = true
 picker.workspace = true
 platform_title_bar.workspace = true
 postage.workspace = true
-project = { workspace = true, features = ["terminal"] }
+project = { workspace = true, features = ["extension-context-servers", "terminal"] }
 prompt_store.workspace = true
 proto.workspace = true
 rand.workspace = true

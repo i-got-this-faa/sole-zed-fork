@@ -3,6 +3,7 @@ use std::sync::Arc;
 use anyhow::Result;
 use collections::HashMap;
 use context_server::ContextServerCommand;
+#[cfg(feature = "extension-context-servers")]
 use extension::ContextServerConfiguration;
 use gpui::{App, AppContext as _, AsyncApp, Context, Entity, Global, Task};
 
@@ -14,6 +15,7 @@ pub trait ContextServerDescriptor {
         worktree_store: Entity<WorktreeStore>,
         cx: &AsyncApp,
     ) -> Task<Result<ContextServerCommand>>;
+    #[cfg(feature = "extension-context-servers")]
     fn configuration(
         &self,
         worktree_store: Entity<WorktreeStore>,

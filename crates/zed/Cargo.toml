@@ -166,7 +166,7 @@ parking_lot.workspace = true
 paths.workspace = true
 picker.workspace = true
 profiling.workspace = true
-project.workspace = true
+project = { workspace = true, features = ["extension-context-servers"] }
 project_panel.workspace = true
 project_symbols.workspace = true
 prompt_store.workspace = true
