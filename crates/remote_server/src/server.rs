@@ -673,6 +673,7 @@ pub fn execute_run(
         trusted_worktrees::init(HashMap::default(), cx);
 
         GitHostingProviderRegistry::set_global(git_hosting_provider_registry, cx);
+        #[cfg(feature = "git-hosting-providers")]
         git_hosting_providers::init(cx);
         #[cfg(feature = "debug-adapters")]
         dap_adapters::init(cx);

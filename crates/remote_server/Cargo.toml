@@ -21,8 +21,9 @@ default = []
 agent-server-downloads = ["project/agent-server-downloads"]
 agent-registry = []
 debug-adapters = ["dep:dap_adapters", "dep:debug_adapter_extension"]
+git-hosting-providers = ["dep:git_hosting_providers"]
 telemetry = ["dep:telemetry"]
-test-support = ["debug-adapters", "fs/test-support"]
+test-support = ["debug-adapters", "fs/test-support", "git-hosting-providers"]
 
 [dependencies]
 anyhow.workspace = true
@@ -40,7 +41,7 @@ extension_host.workspace = true
 fs.workspace = true
 futures.workspace = true
 git.workspace = true
-git_hosting_providers.workspace = true
+git_hosting_providers = { workspace = true, optional = true }
 gpui.workspace = true
 gpui_platform.workspace = true
 gpui_tokio.workspace = true
