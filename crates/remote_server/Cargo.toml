@@ -20,6 +20,7 @@ name = "remote_server"
 default = []
 agent-server-downloads = ["project/agent-server-downloads"]
 agent-registry = []
+agent-server-store = []
 context-server-store = []
 crash-handler = ["dep:crashes"]
 debug-adapters = ["dep:dap_adapters", "dep:debug_adapter_extension", "extension-host"]
@@ -29,6 +30,7 @@ json-schema-store = ["dep:json_schema_store"]
 language-extension = ["dep:language_extension", "extension-host"]
 telemetry = ["dep:telemetry"]
 test-support = [
+    "agent-server-store",
     "context-server-store",
     "crash-handler",
     "debug-adapters",
