@@ -23,7 +23,6 @@ use project::{
     buffer_store::{BufferStore, BufferStoreEvent},
     debugger::{breakpoint_store::BreakpointStore, dap_store::DapStore},
     git_store::GitStore,
-    image_store::ImageId,
     lsp_store::log_store::{self, GlobalLogStore, LanguageServerKind, LogKind},
     project_settings::SettingsObserver,
     search::SearchQuery,
@@ -35,6 +34,8 @@ use project::{
 use project::agent_server_store::AgentServerStore;
 #[cfg(feature = "context-server-store")]
 use project::context_server_store::ContextServerStore;
+#[cfg(feature = "image-files")]
+use project::image_store::ImageId;
 use rpc::{
     AnyProtoClient, TypedEnvelope,
     proto::{self, REMOTE_SERVER_PEER_ID, REMOTE_SERVER_PROJECT_ID},
@@ -44,13 +45,17 @@ use smol::process::Child;
 
 use settings::initial_server_settings_content;
 use std::{
-    num::NonZeroU64,
     path::{Path, PathBuf},
     sync::{
         Arc,
-        atomic::{AtomicU64, AtomicUsize, Ordering},
+        atomic::AtomicUsize,
     },
     time::Instant,
+};
+#[cfg(feature = "image-files")]
+use std::{
+    num::NonZeroU64,
+    sync::atomic::{AtomicU64, Ordering},
 };
 use sysinfo::{ProcessRefreshKind, RefreshKind, System, UpdateKind};
 use util::{ResultExt, paths::PathStyle, rel_path::RelPath};
@@ -326,6 +331,7 @@ impl HeadlessProject {
         session.add_entity_request_handler(Self::handle_open_server_settings);
         session.add_entity_request_handler(Self::handle_get_directory_environment);
         session.add_entity_message_handler(Self::handle_toggle_lsp_logs);
+        #[cfg(feature = "image-files")]
         session.add_entity_request_handler(Self::handle_open_image_by_path);
         session.add_entity_request_handler(Self::handle_trust_worktrees);
         session.add_entity_request_handler(Self::handle_restrict_worktrees);
@@ -641,6 +647,7 @@ impl HeadlessProject {
         })
     }
 
+    #[cfg(feature = "image-files")]
     pub async fn handle_open_image_by_path(
         this: Entity<Self>,
         message: TypedEnvelope<proto::OpenImageByPath>,

@@ -32,6 +32,7 @@ debug-adapters = [
 debugger-rpc = []
 extension-host = ["dep:extension", "dep:extension_host"]
 git-hosting-providers = ["dep:git_hosting_providers"]
+image-files = ["dep:image"]
 json-schema-store = ["dep:json_schema_store"]
 kernel-processes = ["dep:uuid"]
 language-extension = ["dep:language_extension", "extension-host"]
@@ -44,6 +45,7 @@ test-support = [
     "extension-host",
     "fs/test-support",
     "git-hosting-providers",
+    "image-files",
     "json-schema-store",
     "kernel-processes",
     "language-extension",
@@ -70,7 +72,7 @@ gpui.workspace = true
 gpui_platform.workspace = true
 gpui_tokio.workspace = true
 http_client.workspace = true
-image.workspace = true
+image = { workspace = true, optional = true }
 json_schema_store = { workspace = true, optional = true }
 language.workspace = true
 language_extension = { workspace = true, optional = true }
