@@ -512,7 +512,7 @@ impl RemoteClient {
                 // Use the same `remote_*` property schema as the forwarded
                 // remote events (see `client::telemetry::report_remote_event`)
                 // so all remote-origin telemetry can be queried uniformly.
-                telemetry::event!(
+                telemetry_event!(
                     "Remote Connection Established",
                     remote = true,
                     remote_connection_type = connection_type,

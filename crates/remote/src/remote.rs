@@ -1,3 +1,10 @@
+macro_rules! telemetry_event {
+    ($($tt:tt)*) => {
+        #[cfg(feature = "telemetry")]
+        telemetry::event!($($tt)*);
+    };
+}
+
 pub mod json_log;
 pub mod protocol;
 pub mod proxy;
