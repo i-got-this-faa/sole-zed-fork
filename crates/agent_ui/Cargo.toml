@@ -84,6 +84,7 @@ platform_title_bar.workspace = true
 postage.workspace = true
 project = { workspace = true, features = [
     "agent-server-downloads",
+    "context-server-oauth",
     "extension-context-servers",
     "terminal",
 ] }

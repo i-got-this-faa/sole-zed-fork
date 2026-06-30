@@ -20,10 +20,12 @@ path = "tests/integration/project_tests.rs"
 
 [features]
 agent-server-downloads = ["http_client/github-download"]
+context-server-oauth = ["dep:zed_credentials_provider"]
 extension-context-servers = ["dep:extension"]
 terminal = ["dep:terminal"]
 test-support = [
     "agent-server-downloads",
+    "context-server-oauth",
     "extension-context-servers",
     "buffer_diff/test-support",
     "client/test-support",
@@ -107,7 +109,7 @@ watch.workspace = true
 wax.workspace = true
 which.workspace = true
 worktree.workspace = true
-zed_credentials_provider.workspace = true
+zed_credentials_provider = { workspace = true, optional = true }
 zeroize.workspace = true
 zlog.workspace = true
 ztracing.workspace = true

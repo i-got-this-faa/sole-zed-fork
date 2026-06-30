@@ -51,7 +51,7 @@ paths.workspace = true
 picker.workspace = true
 regex.workspace = true
 platform_title_bar.workspace = true
-project.workspace = true
+project = { workspace = true, features = ["context-server-oauth"] }
 release_channel.workspace = true
 rodio.workspace = true
 schemars.workspace = true
