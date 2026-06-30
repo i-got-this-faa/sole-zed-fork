@@ -21,14 +21,16 @@ default = []
 agent-server-downloads = ["project/agent-server-downloads"]
 agent-registry = []
 crash-handler = ["dep:crashes"]
-debug-adapters = ["dep:dap_adapters", "dep:debug_adapter_extension"]
+debug-adapters = ["dep:dap_adapters", "dep:debug_adapter_extension", "extension-host"]
+extension-host = ["dep:extension", "dep:extension_host"]
 git-hosting-providers = ["dep:git_hosting_providers"]
 json-schema-store = ["dep:json_schema_store"]
-language-extension = ["dep:language_extension"]
+language-extension = ["dep:language_extension", "extension-host"]
 telemetry = ["dep:telemetry"]
 test-support = [
     "crash-handler",
     "debug-adapters",
+    "extension-host",
     "fs/test-support",
     "git-hosting-providers",
     "json-schema-store",
@@ -46,8 +48,8 @@ crashes = { workspace = true, optional = true }
 dap_adapters = { workspace = true, optional = true }
 debug_adapter_extension = { workspace = true, optional = true }
 env_logger.workspace = true
-extension.workspace = true
-extension_host.workspace = true
+extension = { workspace = true, optional = true }
+extension_host = { workspace = true, optional = true }
 fs.workspace = true
 futures.workspace = true
 git.workspace = true

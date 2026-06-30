@@ -6,7 +6,9 @@ use gpui::TasksIncluded;
 use language::File;
 use lsp::LanguageServerId;
 
+#[cfg(feature = "extension-host")]
 use extension::ExtensionHostProxy;
+#[cfg(feature = "extension-host")]
 use extension_host::headless_host::HeadlessExtensionStore;
 use fs::Fs;
 use gpui::{App, AppContext as _, AsyncApp, Context, Entity, PromptLevel, TaskExt};
@@ -65,6 +67,7 @@ pub struct HeadlessProject {
     pub settings_observer: Entity<SettingsObserver>,
     pub next_entry_id: Arc<AtomicUsize>,
     pub languages: Arc<LanguageRegistry>,
+    #[cfg(feature = "extension-host")]
     pub extensions: Entity<HeadlessExtensionStore>,
     pub git_store: Entity<GitStore>,
     pub environment: Entity<ProjectEnvironment>,
@@ -81,6 +84,7 @@ pub struct HeadlessAppState {
     pub http_client: Arc<dyn HttpClient>,
     pub node_runtime: NodeRuntime,
     pub languages: Arc<LanguageRegistry>,
+    #[cfg(feature = "extension-host")]
     pub extension_host_proxy: Arc<ExtensionHostProxy>,
     pub startup_time: Instant,
 }
@@ -92,18 +96,19 @@ impl HeadlessProject {
     }
 
     pub fn new(
-        HeadlessAppState {
-            session,
-            fs,
-            http_client,
-            node_runtime,
-            languages,
-            extension_host_proxy: proxy,
-            startup_time,
-        }: HeadlessAppState,
+        app_state: HeadlessAppState,
         init_worktree_trust: bool,
         cx: &mut Context<Self>,
     ) -> Self {
+        let session = app_state.session;
+        let fs = app_state.fs;
+        let http_client = app_state.http_client;
+        let node_runtime = app_state.node_runtime;
+        let languages = app_state.languages;
+        let startup_time = app_state.startup_time;
+        #[cfg(feature = "extension-host")]
+        let proxy = app_state.extension_host_proxy;
+
         #[cfg(feature = "debug-adapters")]
         debug_adapter_extension::init(proxy.clone(), cx);
         languages::init(languages.clone(), fs.clone(), node_runtime.clone(), cx);
@@ -271,6 +276,7 @@ impl HeadlessProject {
         })
         .detach();
 
+        #[cfg(feature = "extension-host")]
         let extensions = HeadlessExtensionStore::new(
             fs.clone(),
             http_client.clone(),
@@ -319,14 +325,17 @@ impl HeadlessProject {
         session.add_entity_request_handler(BufferStore::handle_update_buffer);
         session.add_entity_message_handler(BufferStore::handle_close_buffer);
 
-        session.add_request_handler(
-            extensions.downgrade(),
-            HeadlessExtensionStore::handle_sync_extensions,
-        );
-        session.add_request_handler(
-            extensions.downgrade(),
-            HeadlessExtensionStore::handle_install_extension,
-        );
+        #[cfg(feature = "extension-host")]
+        {
+            session.add_request_handler(
+                extensions.downgrade(),
+                HeadlessExtensionStore::handle_sync_extensions,
+            );
+            session.add_request_handler(
+                extensions.downgrade(),
+                HeadlessExtensionStore::handle_install_extension,
+            );
+        }
 
         session.add_request_handler(cx.weak_entity(), Self::handle_spawn_kernel);
         session.add_request_handler(cx.weak_entity(), Self::handle_kill_kernel);
@@ -358,6 +367,7 @@ impl HeadlessProject {
             agent_server_store,
             context_server_store,
             languages,
+            #[cfg(feature = "extension-host")]
             extensions,
             git_store,
             environment,

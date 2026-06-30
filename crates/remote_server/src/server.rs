@@ -1,6 +1,6 @@
 mod headless_project;
 
-#[cfg(test)]
+#[cfg(all(test, feature = "test-support"))]
 mod remote_editing_tests;
 
 #[cfg(windows)]
@@ -12,6 +12,7 @@ use anyhow::{Context as _, Result, anyhow};
 use clap::Subcommand;
 use client::ProxySettings;
 use collections::HashMap;
+#[cfg(feature = "extension-host")]
 use extension::ExtensionHostProxy;
 use fs::{Fs, RealFs};
 use futures::{
@@ -681,8 +682,11 @@ pub fn execute_run(
         #[cfg(feature = "debug-adapters")]
         dap_adapters::init(cx);
 
-        extension::init(cx);
-        let extension_host_proxy = ExtensionHostProxy::global(cx);
+        #[cfg(feature = "extension-host")]
+        let extension_host_proxy = {
+            extension::init(cx);
+            ExtensionHostProxy::global(cx)
+        };
 
         #[cfg(feature = "json-schema-store")]
         json_schema_store::init(cx);
@@ -723,6 +727,7 @@ pub fn execute_run(
                     http_client,
                     node_runtime,
                     languages,
+                    #[cfg(feature = "extension-host")]
                     extension_host_proxy,
                     startup_time,
                 },
