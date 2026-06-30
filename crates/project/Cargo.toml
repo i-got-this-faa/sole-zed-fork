@@ -19,9 +19,11 @@ required-features = ["test-support"]
 path = "tests/integration/project_tests.rs"
 
 [features]
+agent-server-downloads = ["http_client/github-download"]
 extension-context-servers = ["dep:extension"]
 terminal = ["dep:terminal"]
 test-support = [
+    "agent-server-downloads",
     "extension-context-servers",
     "buffer_diff/test-support",
     "client/test-support",
@@ -63,7 +65,7 @@ git.workspace = true
 git_hosting_providers.workspace = true
 globset.workspace = true
 gpui.workspace = true
-http_client = { workspace = true, features = ["github-download"] }
+http_client.workspace = true
 image.workspace = true
 itertools.workspace = true
 indexmap.workspace = true

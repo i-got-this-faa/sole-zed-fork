@@ -1246,28 +1246,14 @@ impl ExternalAgentServer for LocalRegistryArchiveAgent {
                     None
                 };
 
-                match registry_archive_kind_for_url(archive_url)? {
-                    RegistryArchiveKind::Archive(asset_kind) => {
-                        ::http_client::github_download::download_server_binary(
-                            &*http_client,
-                            archive_url,
-                            sha256.as_deref(),
-                            &version_dir,
-                            asset_kind,
-                        )
-                        .await?;
-                    }
-                    RegistryArchiveKind::RawBinary { file_name } => {
-                        ::http_client::github_download::download_server_raw_binary(
-                            &*http_client,
-                            archive_url,
-                            sha256.as_deref(),
-                            &version_dir,
-                            &file_name,
-                        )
-                        .await?;
-                    }
-                }
+                download_registry_archive(
+                    &*http_client,
+                    archive_url,
+                    sha256.as_deref(),
+                    &version_dir,
+                    registry_archive_kind_for_url(archive_url)?,
+                )
+                .await?;
             }
 
             let cmd = &target_config.cmd;
@@ -1324,6 +1310,53 @@ impl ExternalAgentServer for LocalRegistryArchiveAgent {
     fn as_any_mut(&mut self) -> &mut dyn Any {
         self
     }
+}
+
+#[cfg(feature = "agent-server-downloads")]
+async fn download_registry_archive(
+    http_client: &dyn HttpClient,
+    archive_url: &str,
+    sha256: Option<&str>,
+    version_dir: &Path,
+    archive_kind: RegistryArchiveKind,
+) -> Result<()> {
+    match archive_kind {
+        RegistryArchiveKind::Archive(asset_kind) => {
+            ::http_client::github_download::download_server_binary(
+                http_client,
+                archive_url,
+                sha256,
+                version_dir,
+                asset_kind,
+            )
+            .await?;
+        }
+        RegistryArchiveKind::RawBinary { file_name } => {
+            ::http_client::github_download::download_server_raw_binary(
+                http_client,
+                archive_url,
+                sha256,
+                version_dir,
+                &file_name,
+            )
+            .await?;
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(not(feature = "agent-server-downloads"))]
+async fn download_registry_archive(
+    _http_client: &dyn HttpClient,
+    archive_url: &str,
+    _sha256: Option<&str>,
+    _version_dir: &Path,
+    _archive_kind: RegistryArchiveKind,
+) -> Result<()> {
+    bail!(
+        "registry archive agent downloads require the `agent-server-downloads` feature: {archive_url}"
+    )
 }
 
 struct LocalRegistryNpxAgent {

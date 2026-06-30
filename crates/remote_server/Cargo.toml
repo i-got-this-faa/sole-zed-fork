@@ -53,7 +53,7 @@ lsp.workspace = true
 net.workspace = true
 node_runtime.workspace = true
 paths.workspace = true
-project.workspace = true
+project = { workspace = true, features = ["agent-server-downloads"] }
 proto.workspace = true
 release_channel.workspace = true
 remote.workspace = true
