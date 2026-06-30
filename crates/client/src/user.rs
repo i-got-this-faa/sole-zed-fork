@@ -6,8 +6,8 @@ use cloud_api_client::{
     GetAuthenticatedUserResponse, KnownOrUnknown, Organization, OrganizationId, Plan, PlanInfo,
     UpdateSystemSettingsBody,
 };
-use cloud_api_types::OrganizationConfiguration;
-use cloud_llm_client::{
+use cloud_api_types::{
+    OrganizationConfiguration,
     EDIT_PREDICTIONS_USAGE_AMOUNT_HEADER_NAME, EDIT_PREDICTIONS_USAGE_LIMIT_HEADER_NAME, UsageLimit,
 };
 use collections::{HashMap, HashSet, hash_map::Entry};
