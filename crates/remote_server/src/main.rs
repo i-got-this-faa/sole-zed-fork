@@ -10,6 +10,7 @@ struct Cli {
     command: Option<Commands>,
     /// Used for SSH/Git password authentication, to remove the need for netcat as a dependency,
     /// by having Zed act like netcat communicating over a Unix socket.
+    #[cfg(feature = "askpass")]
     #[arg(long, hide = true)]
     askpass: Option<String>,
     /// Used for recording minidumps on crashes by having the server run a separate
@@ -24,6 +25,7 @@ struct Cli {
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
+    #[cfg(feature = "askpass")]
     if let Some(socket_path) = &cli.askpass {
         askpass::main(socket_path);
         return Ok(());
