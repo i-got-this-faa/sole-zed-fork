@@ -674,6 +674,7 @@ pub fn execute_run(
 
         GitHostingProviderRegistry::set_global(git_hosting_provider_registry, cx);
         git_hosting_providers::init(cx);
+        #[cfg(feature = "debug-adapters")]
         dap_adapters::init(cx);
 
         extension::init(cx);

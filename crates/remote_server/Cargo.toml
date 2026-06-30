@@ -20,8 +20,9 @@ name = "remote_server"
 default = []
 agent-server-downloads = ["project/agent-server-downloads"]
 agent-registry = []
+debug-adapters = ["dep:dap_adapters", "dep:debug_adapter_extension"]
 telemetry = ["dep:telemetry"]
-test-support = ["fs/test-support"]
+test-support = ["debug-adapters", "fs/test-support"]
 
 [dependencies]
 anyhow.workspace = true
@@ -31,8 +32,8 @@ clap.workspace = true
 client.workspace = true
 collections.workspace = true
 crashes.workspace = true
-dap_adapters.workspace = true
-debug_adapter_extension.workspace = true
+dap_adapters = { workspace = true, optional = true }
+debug_adapter_extension = { workspace = true, optional = true }
 env_logger.workspace = true
 extension.workspace = true
 extension_host.workspace = true
