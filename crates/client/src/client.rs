@@ -359,7 +359,7 @@ pub struct ClientCredentialsProvider {
 impl ClientCredentialsProvider {
     pub fn new(cx: &App) -> Self {
         Self {
-            provider: zed_credentials_provider::global(cx),
+            provider: client_credentials_provider(cx),
         }
     }
 
@@ -430,6 +430,48 @@ impl ClientCredentialsProvider {
             self.provider.delete_credentials(&credentials_url, cx).await
         }
         .boxed_local()
+    }
+}
+
+#[cfg(feature = "zed-credentials-provider")]
+fn client_credentials_provider(cx: &App) -> Arc<dyn CredentialsProvider> {
+    zed_credentials_provider::global(cx)
+}
+
+#[cfg(not(feature = "zed-credentials-provider"))]
+fn client_credentials_provider(_cx: &App) -> Arc<dyn CredentialsProvider> {
+    Arc::new(NoopCredentialsProvider)
+}
+
+#[cfg(not(feature = "zed-credentials-provider"))]
+struct NoopCredentialsProvider;
+
+#[cfg(not(feature = "zed-credentials-provider"))]
+impl CredentialsProvider for NoopCredentialsProvider {
+    fn read_credentials<'a>(
+        &'a self,
+        _url: &'a str,
+        _cx: &'a AsyncApp,
+    ) -> Pin<Box<dyn Future<Output = Result<Option<(String, Vec<u8>)>>> + 'a>> {
+        Box::pin(async { Ok(None) })
+    }
+
+    fn write_credentials<'a>(
+        &'a self,
+        _url: &'a str,
+        _username: &'a str,
+        _password: &'a [u8],
+        _cx: &'a AsyncApp,
+    ) -> Pin<Box<dyn Future<Output = Result<()>> + 'a>> {
+        Box::pin(async { Ok(()) })
+    }
+
+    fn delete_credentials<'a>(
+        &'a self,
+        _url: &'a str,
+        _cx: &'a AsyncApp,
+    ) -> Pin<Box<dyn Future<Output = Result<()>> + 'a>> {
+        Box::pin(async { Ok(()) })
     }
 }
 

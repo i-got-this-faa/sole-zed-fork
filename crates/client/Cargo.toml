@@ -13,7 +13,14 @@ path = "src/client.rs"
 doctest = false
 
 [features]
-test-support = ["clock/test-support", "collections/test-support", "gpui/test-support", "rpc/test-support"]
+test-support = [
+    "clock/test-support",
+    "collections/test-support",
+    "gpui/test-support",
+    "rpc/test-support",
+    "zed-credentials-provider",
+]
+zed-credentials-provider = ["dep:zed_credentials_provider"]
 
 [dependencies]
 anyhow.workspace = true
@@ -60,7 +67,7 @@ tokio.workspace = true
 url.workspace = true
 util.workspace = true
 worktree.workspace = true
-zed_credentials_provider.workspace = true
+zed_credentials_provider = { workspace = true, optional = true }
 
 [dev-dependencies]
 clock = { workspace = true, features = ["test-support"] }
