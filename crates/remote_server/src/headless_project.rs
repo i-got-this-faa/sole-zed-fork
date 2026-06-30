@@ -58,6 +58,7 @@ use std::{
     num::NonZeroU64,
     sync::atomic::{AtomicU64, Ordering},
 };
+#[cfg(feature = "process-list")]
 use sysinfo::{ProcessRefreshKind, RefreshKind, System, UpdateKind};
 use util::{ResultExt, paths::PathStyle, rel_path::RelPath};
 use worktree::Worktree;
@@ -322,6 +323,7 @@ impl HeadlessProject {
         session.add_request_handler(cx.weak_entity(), Self::handle_get_path_metadata);
         session.add_request_handler(cx.weak_entity(), Self::handle_shutdown_remote_server);
         session.add_request_handler(cx.weak_entity(), Self::handle_ping);
+        #[cfg(feature = "process-list")]
         session.add_request_handler(cx.weak_entity(), Self::handle_get_processes);
         #[cfg(feature = "remote-profiling")]
         session.add_request_handler(cx.weak_entity(), Self::handle_get_remote_profiling_data);
@@ -1276,6 +1278,7 @@ impl HeadlessProject {
         Ok(proto::Ack {})
     }
 
+    #[cfg(feature = "process-list")]
     async fn handle_get_processes(
         _this: Entity<Self>,
         _envelope: TypedEnvelope<proto::GetProcesses>,
