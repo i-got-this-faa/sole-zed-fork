@@ -681,6 +681,7 @@ pub fn execute_run(
         extension::init(cx);
         let extension_host_proxy = ExtensionHostProxy::global(cx);
 
+        #[cfg(feature = "json-schema-store")]
         json_schema_store::init(cx);
 
         let project = cx.new(|cx| {
