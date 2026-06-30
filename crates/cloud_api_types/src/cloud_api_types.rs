@@ -18,11 +18,17 @@ pub use crate::plan::*;
 pub use crate::timestamp::Timestamp;
 #[cfg(feature = "predict-edits")]
 pub use cloud_llm_client::predict_edits_v3;
+#[cfg(feature = "predict-edits")]
+pub use cloud_llm_client::predict_edits_v4;
 pub use cloud_llm_client::{
-    CompletionRequestStatus, CurrentUsage, EDIT_PREDICTIONS_USAGE_AMOUNT_HEADER_NAME,
-    EDIT_PREDICTIONS_USAGE_LIMIT_HEADER_NAME, EXPIRED_LLM_TOKEN_HEADER_NAME, LanguageModel,
-    LanguageModelId, LanguageModelProvider, ListModelsResponse, OUTDATED_LLM_TOKEN_HEADER_NAME,
-    PredictEditsRequestTrigger, UsageData, UsageLimit, WebSearchBody, WebSearchResponse,
+    AcceptEditPredictionBody, CompletionRequestStatus, CurrentUsage,
+    EDIT_PREDICTIONS_USAGE_AMOUNT_HEADER_NAME, EDIT_PREDICTIONS_USAGE_LIMIT_HEADER_NAME,
+    EXPIRED_LLM_TOKEN_HEADER_NAME, EditPredictionRejectReason, EditPredictionRejection,
+    LanguageModel, LanguageModelId, LanguageModelProvider, ListModelsResponse,
+    MAX_EDIT_PREDICTION_REJECTIONS_PER_REQUEST, MINIMUM_REQUIRED_VERSION_HEADER_NAME,
+    OUTDATED_LLM_TOKEN_HEADER_NAME, PREFERRED_EXPERIMENT_HEADER_NAME, PredictEditsRequestTrigger,
+    RejectEditPredictionsBody, RejectEditPredictionsBodyRef, UsageData, UsageLimit,
+    WebSearchBody, WebSearchResponse, ZED_VERSION_HEADER_NAME,
 };
 
 pub const ZED_SYSTEM_ID_HEADER_NAME: &str = "x-zed-system-id";
