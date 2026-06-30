@@ -21,14 +21,16 @@ pub use cloud_llm_client::predict_edits_v3;
 #[cfg(feature = "predict-edits")]
 pub use cloud_llm_client::predict_edits_v4;
 pub use cloud_llm_client::{
-    AcceptEditPredictionBody, CompletionRequestStatus, CurrentUsage,
+    AcceptEditPredictionBody, CLIENT_SUPPORTS_STATUS_MESSAGES_HEADER_NAME,
+    CLIENT_SUPPORTS_STATUS_STREAM_ENDED_HEADER_NAME, CLIENT_SUPPORTS_X_AI_HEADER_NAME,
+    CompletionBody, CompletionEvent, CompletionRequestStatus, CurrentUsage,
     EDIT_PREDICTIONS_USAGE_AMOUNT_HEADER_NAME, EDIT_PREDICTIONS_USAGE_LIMIT_HEADER_NAME,
     EXPIRED_LLM_TOKEN_HEADER_NAME, EditPredictionRejectReason, EditPredictionRejection,
     LanguageModel, LanguageModelId, LanguageModelProvider, ListModelsResponse,
     MAX_EDIT_PREDICTION_REJECTIONS_PER_REQUEST, MINIMUM_REQUIRED_VERSION_HEADER_NAME,
     OUTDATED_LLM_TOKEN_HEADER_NAME, PREFERRED_EXPERIMENT_HEADER_NAME, PredictEditsRequestTrigger,
-    RejectEditPredictionsBody, RejectEditPredictionsBodyRef, UsageData, UsageLimit,
-    WebSearchBody, WebSearchResponse, ZED_VERSION_HEADER_NAME,
+    RejectEditPredictionsBody, RejectEditPredictionsBodyRef, SERVER_SUPPORTS_STATUS_MESSAGES_HEADER_NAME,
+    UsageData, UsageLimit, WebSearchBody, WebSearchResponse, ZED_VERSION_HEADER_NAME,
 };
 
 pub const ZED_SYSTEM_ID_HEADER_NAME: &str = "x-zed-system-id";
