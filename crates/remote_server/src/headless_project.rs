@@ -13,9 +13,11 @@ use gpui::{App, AppContext as _, AsyncApp, Context, Entity, PromptLevel, TaskExt
 use http_client::HttpClient;
 use language::{Buffer, BufferEvent, LanguageRegistry, proto::serialize_operation};
 use node_runtime::NodeRuntime;
+#[cfg(feature = "agent-registry")]
+use project::AgentRegistryStore;
 use project::{
-    AgentRegistryStore, LspStore, LspStoreEvent, ManifestTree, PrettierStore, ProjectEnvironment,
-    ProjectPath, ToolchainStore, WorktreeId,
+    LspStore, LspStoreEvent, ManifestTree, PrettierStore, ProjectEnvironment, ProjectPath,
+    ToolchainStore, WorktreeId,
     agent_server_store::AgentServerStore,
     buffer_store::{BufferStore, BufferStoreEvent},
     context_server_store::ContextServerStore,
@@ -231,6 +233,7 @@ impl HeadlessProject {
             lsp_store
         });
 
+        #[cfg(feature = "agent-registry")]
         AgentRegistryStore::init_global(cx, fs.clone(), http_client.clone());
 
         let agent_server_store = cx.new(|cx| {

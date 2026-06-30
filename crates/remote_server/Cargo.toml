@@ -18,6 +18,7 @@ name = "remote_server"
 
 [features]
 default = []
+agent-registry = []
 debug-embed = ["dep:rust-embed"]
 telemetry = ["dep:telemetry"]
 test-support = ["fs/test-support"]
