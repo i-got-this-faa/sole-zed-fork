@@ -257,6 +257,7 @@ impl HeadlessProject {
         });
 
         cx.subscribe(&lsp_store, Self::on_lsp_store_event).detach();
+        #[cfg(feature = "language-extension")]
         language_extension::init(
             language_extension::LspAccess::ViaLspStore(lsp_store.clone()),
             proxy.clone(),

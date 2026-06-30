@@ -23,12 +23,14 @@ agent-registry = []
 debug-adapters = ["dep:dap_adapters", "dep:debug_adapter_extension"]
 git-hosting-providers = ["dep:git_hosting_providers"]
 json-schema-store = ["dep:json_schema_store"]
+language-extension = ["dep:language_extension"]
 telemetry = ["dep:telemetry"]
 test-support = [
     "debug-adapters",
     "fs/test-support",
     "git-hosting-providers",
     "json-schema-store",
+    "language-extension",
 ]
 
 [dependencies]
@@ -55,7 +57,7 @@ http_client.workspace = true
 image.workspace = true
 json_schema_store = { workspace = true, optional = true }
 language.workspace = true
-language_extension.workspace = true
+language_extension = { workspace = true, optional = true }
 languages.workspace = true
 log.workspace = true
 lsp.workspace = true
