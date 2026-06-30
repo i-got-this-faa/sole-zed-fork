@@ -341,6 +341,7 @@ impl HeadlessProject {
         session.add_entity_request_handler(Self::handle_open_image_by_path);
         session.add_entity_request_handler(Self::handle_trust_worktrees);
         session.add_entity_request_handler(Self::handle_restrict_worktrees);
+        #[cfg(feature = "remote-file-downloads")]
         session.add_entity_request_handler(Self::handle_download_file_by_path);
 
         session.add_entity_message_handler(Self::handle_find_search_candidates_cancel);
@@ -766,6 +767,7 @@ impl HeadlessProject {
         Ok(proto::Ack {})
     }
 
+    #[cfg(feature = "remote-file-downloads")]
     pub async fn handle_download_file_by_path(
         this: Entity<Self>,
         message: TypedEnvelope<proto::DownloadFileByPath>,

@@ -38,6 +38,7 @@ json-schema-store = ["dep:json_schema_store"]
 kernel-processes = ["dep:uuid"]
 language-extension = ["dep:language_extension", "extension-host"]
 process-list = []
+remote-file-downloads = []
 remote-profiling = []
 telemetry = ["dep:telemetry"]
 test-support = [
@@ -54,6 +55,7 @@ test-support = [
     "kernel-processes",
     "language-extension",
     "process-list",
+    "remote-file-downloads",
     "remote-profiling",
 ]
 
