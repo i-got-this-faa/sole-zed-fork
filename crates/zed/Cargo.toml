@@ -105,7 +105,7 @@ editor = { workspace = true, features = ["telemetry"] }
 encoding_selector.workspace = true
 env_logger.workspace = true
 extension.workspace = true
-extension_host.workspace = true
+extension_host = { workspace = true, features = ["telemetry"] }
 extensions_ui.workspace = true
 feature_flags.workspace = true
 feedback.workspace = true

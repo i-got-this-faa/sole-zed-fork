@@ -3,6 +3,13 @@ pub mod extension_settings;
 pub mod headless_host;
 pub mod wasm_host;
 
+macro_rules! telemetry_event {
+    ($($tt:tt)*) => {
+        #[cfg(feature = "telemetry")]
+        telemetry::event!($($tt)*);
+    };
+}
+
 #[cfg(test)]
 mod extension_store_test;
 
@@ -1261,7 +1268,7 @@ impl ExtensionStore {
             })
             .collect::<Vec<_>>();
 
-        telemetry::event!("Extensions Loaded", id_and_versions = extension_ids);
+        telemetry_event!("Extensions Loaded", id_and_versions = extension_ids);
 
         let themes_to_remove = old_index
             .themes

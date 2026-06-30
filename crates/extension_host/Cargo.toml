@@ -13,7 +13,8 @@ path = "src/extension_host.rs"
 doctest = false
 
 [features]
-test-support = []
+telemetry = ["dep:telemetry"]
+test-support = ["telemetry"]
 
 [dependencies]
 anyhow.workspace = true
@@ -45,7 +46,7 @@ serde_json.workspace = true
 serde_json_lenient.workspace = true
 settings.workspace = true
 task.workspace = true
-telemetry.workspace = true
+telemetry = { workspace = true, optional = true }
 tempfile.workspace = true
 toml.workspace = true
 tracing.workspace = true
