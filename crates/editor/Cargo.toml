@@ -13,8 +13,10 @@ path = "src/editor.rs"
 doctest = false
 
 [features]
+dap-telemetry = ["dep:dap"]
 telemetry = ["dep:telemetry"]
 test-support = [
+    "dap-telemetry",
     "telemetry",
     "text/test-support",
     "language/test-support",
@@ -43,7 +45,7 @@ client.workspace = true
 clock.workspace = true
 collections.workspace = true
 convert_case.workspace = true
-dap.workspace = true
+dap = { workspace = true, optional = true }
 db.workspace = true
 buffer_diff.workspace = true
 emojis.workspace = true

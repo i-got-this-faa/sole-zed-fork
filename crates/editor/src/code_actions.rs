@@ -1,5 +1,13 @@
 use super::*;
 
+#[cfg(feature = "dap-telemetry")]
+fn send_debug_scenario_telemetry(scenario: &task::DebugScenario, cx: &App) {
+    dap::send_telemetry(scenario, dap::TelemetrySpawnLocation::Gutter, cx);
+}
+
+#[cfg(not(feature = "dap-telemetry"))]
+fn send_debug_scenario_telemetry(_scenario: &task::DebugScenario, _cx: &App) {}
+
 impl Editor {
     /// Toggles an action selection menu for the latest selection.
     /// May show LSP code actions, code lens' command, runnables and potentially more entities applicable as actions.
@@ -247,7 +255,7 @@ impl Editor {
                 let context = actions_menu.actions.context.into();
 
                 workspace.update(cx, |workspace, cx| {
-                    dap::send_telemetry(&scenario, TelemetrySpawnLocation::Gutter, cx);
+                    send_debug_scenario_telemetry(&scenario, cx);
                     workspace.start_debug_session(
                         scenario,
                         context,
