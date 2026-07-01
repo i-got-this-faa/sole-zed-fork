@@ -41,6 +41,7 @@ language-extension = ["dep:language_extension", "extension-host"]
 lsp-log-control = []
 process-list = []
 project-search = []
+remote-binary-cleanup = ["dep:semver"]
 remote-file-downloads = []
 remote-profiling = []
 server-settings = []
@@ -62,6 +63,7 @@ test-support = [
     "lsp-log-control",
     "process-list",
     "project-search",
+    "remote-binary-cleanup",
     "remote-file-downloads",
     "remote-profiling",
     "server-settings",
@@ -104,7 +106,7 @@ release_channel.workspace = true
 remote.workspace = true
 reqwest_client.workspace = true
 rpc.workspace = true
-semver.workspace = true
+semver = { workspace = true, optional = true }
 serde_json.workspace = true
 settings.workspace = true
 shellexpand.workspace = true
@@ -141,6 +143,7 @@ node_runtime = { workspace = true, features = ["test-support"] }
 pretty_assertions.workspace = true
 project = { workspace = true, features = ["test-support"] }
 remote = { workspace = true, features = ["test-support"] }
+semver.workspace = true
 serde_json.workspace = true
 tempfile.workspace = true
 theme = { workspace = true, features = ["test-support"] }

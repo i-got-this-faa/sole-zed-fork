@@ -29,6 +29,7 @@ use net::async_net::{UnixListener, UnixStream};
 use node_runtime::{NodeBinaryOptions, NodeRuntime};
 use paths::logs_dir;
 use project::{project_settings::ProjectSettings, trusted_worktrees};
+#[cfg(feature = "crash-handler")]
 use proto::CrashReport;
 use release_channel::{AppCommitSha, AppVersion, RELEASE_CHANNEL, ReleaseChannel};
 use remote::{
@@ -44,14 +45,17 @@ use settings::{Settings, SettingsStore, watch_config_file};
 use smol::{
     channel::{Receiver, Sender},
     io::AsyncReadExt,
+    #[cfg(feature = "crash-handler")]
     stream::StreamExt as _,
 };
 use std::{
+    #[cfg(feature = "remote-binary-cleanup")]
     ffi::OsStr,
     fs::File,
     io::Write,
     mem,
     path::{Path, PathBuf},
+    #[cfg(feature = "remote-binary-cleanup")]
     str::FromStr,
     sync::{Arc, LazyLock},
     time::Instant,
@@ -332,6 +336,7 @@ fn init_telemetry_forwarding(session: AnyProtoClient, cx: &mut App) {
     .detach();
 }
 
+#[cfg(feature = "crash-handler")]
 fn handle_crash_files_requests(project: &Entity<HeadlessProject>, client: &AnyProtoClient) {
     client.add_request_handler(
         project.downgrade(),
@@ -736,8 +741,10 @@ pub fn execute_run(
             )
         });
 
+        #[cfg(feature = "crash-handler")]
         handle_crash_files_requests(&project, &session);
 
+        #[cfg(feature = "remote-binary-cleanup")]
         cx.background_spawn(async move {
             cleanup_old_binaries_wsl();
             cleanup_old_binaries()
@@ -1339,6 +1346,7 @@ fn read_proxy_settings(cx: &mut Context<HeadlessProject>) -> Option<Url> {
         .or_else(read_proxy_from_env)
 }
 
+#[cfg(feature = "remote-binary-cleanup")]
 fn cleanup_old_binaries() -> Result<()> {
     let server_dir = paths::remote_server_dir_relative();
     let release_channel = release_channel::RELEASE_CHANNEL.dev_name();
@@ -1362,6 +1370,7 @@ fn cleanup_old_binaries() -> Result<()> {
 
 // Remove this once 223 goes stable, we only have this to clean up old binaries on WSL
 // we no longer download them into this folder, we use the same folder as other remote servers
+#[cfg(feature = "remote-binary-cleanup")]
 fn cleanup_old_binaries_wsl() {
     let server_dir = paths::remote_wsl_server_dir_relative();
     if let Ok(()) = std::fs::remove_dir_all(server_dir.as_std_path()) {
@@ -1369,6 +1378,7 @@ fn cleanup_old_binaries_wsl() {
     }
 }
 
+#[cfg(feature = "remote-binary-cleanup")]
 fn is_new_version(version: &str) -> bool {
     semver::Version::from_str(version)
         .ok()
@@ -1376,6 +1386,7 @@ fn is_new_version(version: &str) -> bool {
         .is_some_and(|(version, current_version)| version >= current_version)
 }
 
+#[cfg(feature = "remote-binary-cleanup")]
 fn is_file_in_use(file_name: &OsStr) -> bool {
     let info = sysinfo::System::new_with_specifics(sysinfo::RefreshKind::nothing().with_processes(
         sysinfo::ProcessRefreshKind::nothing().with_exe(sysinfo::UpdateKind::Always),
