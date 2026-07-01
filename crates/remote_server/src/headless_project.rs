@@ -27,13 +27,14 @@ use project::{
     LspStore, LspStoreEvent, ManifestTree, PrettierStore, ProjectEnvironment, ProjectPath,
     ToolchainStore, WorktreeId,
     buffer_store::{BufferStore, BufferStoreEvent},
-    git_store::GitStore,
-    project_settings::SettingsObserver,
-    task_store::TaskStore,
     worktree_store::{WorktreeIdCounter, WorktreeStore},
 };
 #[cfg(feature = "worktree-trust")]
 use project::trusted_worktrees::{PathTrust, RemoteHostLocation, TrustedWorktrees};
+#[cfg(feature = "project-services")]
+use project::{
+    git_store::GitStore, project_settings::SettingsObserver, task_store::TaskStore,
+};
 #[cfg(feature = "debugger-rpc")]
 use project::debugger::{breakpoint_store::BreakpointStore, dap_store::DapStore};
 #[cfg(feature = "agent-server-store")]
@@ -79,6 +80,7 @@ pub struct HeadlessProject {
     pub worktree_store: Entity<WorktreeStore>,
     pub buffer_store: Entity<BufferStore>,
     pub lsp_store: Entity<LspStore>,
+    #[cfg(feature = "project-services")]
     pub task_store: Entity<TaskStore>,
     #[cfg(feature = "debugger-rpc")]
     pub dap_store: Entity<DapStore>,
@@ -88,11 +90,13 @@ pub struct HeadlessProject {
     pub agent_server_store: Entity<AgentServerStore>,
     #[cfg(feature = "context-server-store")]
     pub context_server_store: Entity<ContextServerStore>,
+    #[cfg(feature = "project-services")]
     pub settings_observer: Entity<SettingsObserver>,
     pub next_entry_id: Arc<AtomicUsize>,
     pub languages: Arc<LanguageRegistry>,
     #[cfg(feature = "extension-host")]
     pub extensions: Entity<HeadlessExtensionStore>,
+    #[cfg(feature = "project-services")]
     pub git_store: Entity<GitStore>,
     pub environment: Entity<ProjectEnvironment>,
     #[cfg(feature = "remote-profiling")]
@@ -205,6 +209,7 @@ impl HeadlessProject {
             dap_store
         });
 
+        #[cfg(feature = "project-services")]
         let git_store = cx.new(|cx| {
             let mut store = GitStore::local(
                 &worktree_store,
@@ -227,6 +232,7 @@ impl HeadlessProject {
             )
         });
 
+        #[cfg(feature = "project-services")]
         let task_store = cx.new(|cx| {
             let mut task_store = TaskStore::local(
                 buffer_store.downgrade(),
@@ -239,6 +245,7 @@ impl HeadlessProject {
             task_store.shared(REMOTE_SERVER_PROJECT_ID, session.clone(), cx);
             task_store
         });
+        #[cfg(feature = "project-services")]
         let settings_observer = cx.new(|cx| {
             let mut observer = SettingsObserver::new_local(
                 fs.clone(),
@@ -326,13 +333,16 @@ impl HeadlessProject {
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &buffer_store);
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &cx.entity());
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &lsp_store);
+        #[cfg(feature = "project-services")]
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &task_store);
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &toolchain_store);
         #[cfg(feature = "debugger-rpc")]
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &dap_store);
         #[cfg(feature = "debugger-rpc")]
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &breakpoint_store);
+        #[cfg(feature = "project-services")]
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &settings_observer);
+        #[cfg(feature = "project-services")]
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &git_store);
         #[cfg(feature = "agent-server-store")]
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &agent_server_store);
@@ -395,8 +405,10 @@ impl HeadlessProject {
 
         BufferStore::init(&session);
         WorktreeStore::init(&session);
+        #[cfg(feature = "project-services")]
         SettingsObserver::init(&session);
         LspStore::init(&session);
+        #[cfg(feature = "project-services")]
         TaskStore::init(Some(&session));
         ToolchainStore::init(&session);
         #[cfg(feature = "debugger-rpc")]
@@ -404,6 +416,7 @@ impl HeadlessProject {
         // todo(debugger): Re init breakpoint store when we set it up for collab
         #[cfg(feature = "debugger-rpc")]
         BreakpointStore::init(&session);
+        #[cfg(feature = "project-services")]
         GitStore::init(&session);
         #[cfg(feature = "agent-server-store")]
         AgentServerStore::init_headless(&session);
@@ -413,11 +426,13 @@ impl HeadlessProject {
         HeadlessProject {
             next_entry_id: Default::default(),
             session,
+            #[cfg(feature = "project-services")]
             settings_observer,
             fs,
             worktree_store,
             buffer_store,
             lsp_store,
+            #[cfg(feature = "project-services")]
             task_store,
             #[cfg(feature = "debugger-rpc")]
             dap_store,
@@ -430,6 +445,7 @@ impl HeadlessProject {
             languages,
             #[cfg(feature = "extension-host")]
             extensions,
+            #[cfg(feature = "project-services")]
             git_store,
             environment,
             #[cfg(feature = "remote-profiling")]

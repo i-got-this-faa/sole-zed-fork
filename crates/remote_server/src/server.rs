@@ -21,6 +21,7 @@ use futures::{
     channel::{mpsc, oneshot},
     select, select_biased,
 };
+#[cfg(feature = "project-services")]
 use git::GitHostingProviderRegistry;
 use gpui::{App, AppContext as _, Context, Entity, UpdateGlobal as _};
 use gpui_tokio::Tokio;
@@ -649,6 +650,7 @@ pub fn execute_run(
     #[cfg(windows)]
     let shell_env_loaded_rx: Option<oneshot::Receiver<()>> = None;
 
+    #[cfg(feature = "project-services")]
     let git_hosting_provider_registry = Arc::new(GitHostingProviderRegistry::new());
     let run = move |cx: &mut App| {
         #[cfg(feature = "crash-handler")]
@@ -685,6 +687,7 @@ pub fn execute_run(
         #[cfg(feature = "worktree-trust")]
         trusted_worktrees::init(HashMap::default(), cx);
 
+        #[cfg(feature = "project-services")]
         GitHostingProviderRegistry::set_global(git_hosting_provider_registry, cx);
         #[cfg(feature = "git-hosting-providers")]
         git_hosting_providers::init(cx);

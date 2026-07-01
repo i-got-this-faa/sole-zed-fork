@@ -33,13 +33,14 @@ debug-adapters = [
 debugger-rpc = []
 directory-environment = ["dep:task"]
 extension-host = ["dep:extension", "dep:extension_host"]
-git-hosting-providers = ["dep:git_hosting_providers"]
+git-hosting-providers = ["project-services", "dep:git_hosting_providers"]
 image-files = ["dep:image"]
 json-schema-store = ["dep:json_schema_store"]
 kernel-processes = ["dep:uuid"]
 language-extension = ["dep:language_extension", "extension-host"]
 lsp-log-control = []
 process-list = []
+project-services = ["dep:git"]
 project-search = []
 remote-binary-cleanup = ["dep:semver"]
 remote-file-downloads = []
@@ -63,6 +64,7 @@ test-support = [
     "language-extension",
     "lsp-log-control",
     "process-list",
+    "project-services",
     "project-search",
     "remote-binary-cleanup",
     "remote-file-downloads",
@@ -86,7 +88,7 @@ extension = { workspace = true, optional = true }
 extension_host = { workspace = true, optional = true }
 fs.workspace = true
 futures.workspace = true
-git.workspace = true
+git = { workspace = true, optional = true }
 git_hosting_providers = { workspace = true, optional = true }
 gpui.workspace = true
 gpui_platform.workspace = true
@@ -136,6 +138,7 @@ client = { workspace = true, features = ["test-support"] }
 clock = { workspace = true, features = ["test-support"] }
 editor = { workspace = true, features = ["test-support"] }
 fs = { workspace = true, features = ["test-support"] }
+git.workspace = true
 gpui = { workspace = true, features = ["test-support"] }
 http_client = { workspace = true, features = ["test-support"] }
 language = { workspace = true, features = ["test-support"] }
