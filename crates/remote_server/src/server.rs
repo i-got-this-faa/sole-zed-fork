@@ -11,6 +11,7 @@ pub use headless_project::{HeadlessAppState, HeadlessProject};
 use anyhow::{Context as _, Result, anyhow};
 use clap::Subcommand;
 use client::ProxySettings;
+#[cfg(feature = "worktree-trust")]
 use collections::HashMap;
 #[cfg(feature = "extension-host")]
 use extension::ExtensionHostProxy;
@@ -28,7 +29,9 @@ use language::LanguageRegistry;
 use net::async_net::{UnixListener, UnixStream};
 use node_runtime::{NodeBinaryOptions, NodeRuntime};
 use paths::logs_dir;
-use project::{project_settings::ProjectSettings, trusted_worktrees};
+use project::project_settings::ProjectSettings;
+#[cfg(feature = "worktree-trust")]
+use project::trusted_worktrees;
 #[cfg(feature = "crash-handler")]
 use proto::CrashReport;
 use release_channel::{AppCommitSha, AppVersion, RELEASE_CHANNEL, ReleaseChannel};
@@ -679,6 +682,7 @@ pub fn execute_run(
         let session = start_server(listeners, log_rx, cx, is_wsl_interop);
         #[cfg(feature = "telemetry")]
         init_telemetry_forwarding(session.clone(), cx);
+        #[cfg(feature = "worktree-trust")]
         trusted_worktrees::init(HashMap::default(), cx);
 
         GitHostingProviderRegistry::set_global(git_hosting_provider_registry, cx);

@@ -1,6 +1,9 @@
 use anyhow::{Context as _, Result, anyhow};
+#[cfg(feature = "worktree-trust")]
 use client::ProjectId;
+#[cfg(feature = "kernel-processes")]
 use collections::HashMap;
+#[cfg(feature = "worktree-trust")]
 use collections::HashSet;
 #[cfg(feature = "remote-profiling")]
 use gpui::TasksIncluded;
@@ -27,9 +30,10 @@ use project::{
     git_store::GitStore,
     project_settings::SettingsObserver,
     task_store::TaskStore,
-    trusted_worktrees::{PathTrust, RemoteHostLocation, TrustedWorktrees},
     worktree_store::{WorktreeIdCounter, WorktreeStore},
 };
+#[cfg(feature = "worktree-trust")]
+use project::trusted_worktrees::{PathTrust, RemoteHostLocation, TrustedWorktrees};
 #[cfg(feature = "debugger-rpc")]
 use project::debugger::{breakpoint_store::BreakpointStore, dap_store::DapStore};
 #[cfg(feature = "agent-server-store")]
@@ -143,6 +147,7 @@ impl HeadlessProject {
             store
         });
 
+        #[cfg(feature = "worktree-trust")]
         if init_worktree_trust {
             project::trusted_worktrees::track_worktree_trust(
                 worktree_store.clone(),
@@ -152,6 +157,8 @@ impl HeadlessProject {
                 cx,
             );
         }
+        #[cfg(not(feature = "worktree-trust"))]
+        let _ = init_worktree_trust;
 
         let environment =
             cx.new(|cx| ProjectEnvironment::new(None, worktree_store.downgrade(), None, true, cx));
@@ -356,7 +363,9 @@ impl HeadlessProject {
         session.add_entity_message_handler(Self::handle_toggle_lsp_logs);
         #[cfg(feature = "image-files")]
         session.add_entity_request_handler(Self::handle_open_image_by_path);
+        #[cfg(feature = "worktree-trust")]
         session.add_entity_request_handler(Self::handle_trust_worktrees);
+        #[cfg(feature = "worktree-trust")]
         session.add_entity_request_handler(Self::handle_restrict_worktrees);
         #[cfg(feature = "remote-file-downloads")]
         session.add_entity_request_handler(Self::handle_download_file_by_path);
@@ -753,6 +762,7 @@ impl HeadlessProject {
         })
     }
 
+    #[cfg(feature = "worktree-trust")]
     pub async fn handle_trust_worktrees(
         this: Entity<Self>,
         envelope: TypedEnvelope<proto::TrustWorktrees>,
@@ -777,6 +787,7 @@ impl HeadlessProject {
         Ok(proto::Ack {})
     }
 
+    #[cfg(feature = "worktree-trust")]
     pub async fn handle_restrict_worktrees(
         this: Entity<Self>,
         envelope: TypedEnvelope<proto::RestrictWorktrees>,

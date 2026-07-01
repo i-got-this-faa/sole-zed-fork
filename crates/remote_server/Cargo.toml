@@ -46,6 +46,7 @@ remote-file-downloads = []
 remote-profiling = []
 server-settings = []
 telemetry = ["dep:telemetry"]
+worktree-trust = []
 test-support = [
     "askpass",
     "agent-server-store",
@@ -67,6 +68,7 @@ test-support = [
     "remote-file-downloads",
     "remote-profiling",
     "server-settings",
+    "worktree-trust",
 ]
 
 [dependencies]
