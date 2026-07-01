@@ -31,6 +31,7 @@ debug-adapters = [
     "extension-host",
 ]
 debugger-rpc = []
+directory-environment = ["dep:task"]
 extension-host = ["dep:extension", "dep:extension_host"]
 git-hosting-providers = ["dep:git_hosting_providers"]
 image-files = ["dep:image"]
@@ -38,8 +39,10 @@ json-schema-store = ["dep:json_schema_store"]
 kernel-processes = ["dep:uuid"]
 language-extension = ["dep:language_extension", "extension-host"]
 process-list = []
+project-search = []
 remote-file-downloads = []
 remote-profiling = []
+server-settings = []
 telemetry = ["dep:telemetry"]
 test-support = [
     "askpass",
@@ -47,6 +50,7 @@ test-support = [
     "context-server-store",
     "crash-handler",
     "debug-adapters",
+    "directory-environment",
     "extension-host",
     "fs/test-support",
     "git-hosting-providers",
@@ -55,8 +59,10 @@ test-support = [
     "kernel-processes",
     "language-extension",
     "process-list",
+    "project-search",
     "remote-file-downloads",
     "remote-profiling",
+    "server-settings",
 ]
 
 [dependencies]
@@ -102,7 +108,7 @@ settings.workspace = true
 shellexpand.workspace = true
 smol.workspace = true
 sysinfo.workspace = true
-task.workspace = true
+task = { workspace = true, optional = true }
 telemetry = { workspace = true, optional = true }
 util.workspace = true
 watch.workspace = true

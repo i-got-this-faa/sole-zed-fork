@@ -18,6 +18,8 @@ use language::{Buffer, BufferEvent, LanguageRegistry, proto::serialize_operation
 use node_runtime::NodeRuntime;
 #[cfg(feature = "agent-registry")]
 use project::AgentRegistryStore;
+#[cfg(feature = "project-search")]
+use project::search::SearchQuery;
 use project::{
     LspStore, LspStoreEvent, ManifestTree, PrettierStore, ProjectEnvironment, ProjectPath,
     ToolchainStore, WorktreeId,
@@ -26,7 +28,6 @@ use project::{
     git_store::GitStore,
     lsp_store::log_store::{self, GlobalLogStore, LanguageServerKind, LogKind},
     project_settings::SettingsObserver,
-    search::SearchQuery,
     task_store::TaskStore,
     trusted_worktrees::{PathTrust, RemoteHostLocation, TrustedWorktrees},
     worktree_store::{WorktreeIdCounter, WorktreeStore},
@@ -44,6 +45,7 @@ use rpc::{
 #[cfg(feature = "kernel-processes")]
 use smol::process::Child;
 
+#[cfg(feature = "server-settings")]
 use settings::initial_server_settings_content;
 use std::{
     path::{Path, PathBuf},
@@ -60,7 +62,9 @@ use std::{
 };
 #[cfg(feature = "process-list")]
 use sysinfo::{ProcessRefreshKind, RefreshKind, System, UpdateKind};
-use util::{ResultExt, paths::PathStyle, rel_path::RelPath};
+#[cfg(feature = "project-search")]
+use util::paths::PathStyle;
+use util::{ResultExt, rel_path::RelPath};
 use worktree::Worktree;
 
 pub struct HeadlessProject {
@@ -333,8 +337,11 @@ impl HeadlessProject {
 
         session.add_entity_request_handler(Self::handle_open_buffer_by_path);
         session.add_entity_request_handler(Self::handle_open_new_buffer);
+        #[cfg(feature = "project-search")]
         session.add_entity_request_handler(Self::handle_find_search_candidates);
+        #[cfg(feature = "server-settings")]
         session.add_entity_request_handler(Self::handle_open_server_settings);
+        #[cfg(feature = "directory-environment")]
         session.add_entity_request_handler(Self::handle_get_directory_environment);
         session.add_entity_message_handler(Self::handle_toggle_lsp_logs);
         #[cfg(feature = "image-files")]
@@ -344,6 +351,7 @@ impl HeadlessProject {
         #[cfg(feature = "remote-file-downloads")]
         session.add_entity_request_handler(Self::handle_download_file_by_path);
 
+        #[cfg(feature = "project-search")]
         session.add_entity_message_handler(Self::handle_find_search_candidates_cancel);
         session.add_entity_request_handler(BufferStore::handle_update_buffer);
         session.add_entity_message_handler(BufferStore::handle_close_buffer);
@@ -914,6 +922,7 @@ impl HeadlessProject {
         Ok(())
     }
 
+    #[cfg(feature = "server-settings")]
     async fn handle_open_server_settings(
         this: Entity<Self>,
         _: TypedEnvelope<proto::OpenServerSettings>,
@@ -1103,6 +1112,7 @@ impl HeadlessProject {
         Ok(proto::Ack {})
     }
 
+    #[cfg(feature = "project-search")]
     async fn handle_find_search_candidates(
         this: Entity<Self>,
         envelope: TypedEnvelope<proto::FindSearchCandidates>,
@@ -1193,6 +1203,7 @@ impl HeadlessProject {
     }
 
     // Goes from client to host.
+    #[cfg(feature = "project-search")]
     async fn handle_find_search_candidates_cancel(
         this: Entity<Self>,
         envelope: TypedEnvelope<proto::FindSearchCandidatesCancelled>,
@@ -1365,6 +1376,7 @@ impl HeadlessProject {
         Ok(proto::GetRemoteProfilingDataResponse { threads, now_nanos })
     }
 
+    #[cfg(feature = "directory-environment")]
     async fn handle_get_directory_environment(
         this: Entity<Self>,
         envelope: TypedEnvelope<proto::GetDirectoryEnvironment>,
