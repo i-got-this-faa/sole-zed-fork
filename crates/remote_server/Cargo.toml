@@ -33,7 +33,11 @@ debug-adapters = [
 debugger-rpc = []
 directory-environment = ["dep:task"]
 extension-host = ["dep:extension", "dep:extension_host"]
-git-hosting-providers = ["project-services", "dep:git_hosting_providers"]
+git-hosting-providers = [
+    "project-services",
+    "project/git-hosting-providers",
+    "dep:git_hosting_providers",
+]
 image-files = ["dep:image"]
 json-schema-store = ["dep:json_schema_store"]
 kernel-processes = ["dep:uuid"]

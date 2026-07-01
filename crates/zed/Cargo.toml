@@ -170,6 +170,7 @@ project = { workspace = true, features = [
     "agent-server-downloads",
     "context-server-oauth",
     "extension-context-servers",
+    "git-hosting-providers",
 ] }
 project_panel.workspace = true
 project_symbols.workspace = true

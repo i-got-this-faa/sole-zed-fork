@@ -8401,15 +8401,7 @@ impl Repository {
             let Some(state) = state.await.log_err() else {
                 return;
             };
-            if let Some(git_hosting_provider_registry) =
-                cx.update(|cx| GitHostingProviderRegistry::try_global(cx))
-            {
-                git_hosting_providers::register_additional_providers(
-                    git_hosting_provider_registry,
-                    state.backend.clone(),
-                )
-                .await;
-            }
+            register_additional_git_hosting_providers(state.backend.clone(), cx).await;
             let state = RepositoryState::Local(state);
             let mut jobs = VecDeque::new();
             loop {
@@ -8987,6 +8979,29 @@ pub fn repo_identity_path(common_dir: &Path) -> &Path {
     } else {
         common_dir
     }
+}
+
+#[cfg(feature = "git-hosting-providers")]
+async fn register_additional_git_hosting_providers(
+    backend: Arc<dyn GitRepository>,
+    cx: &mut AsyncApp,
+) {
+    if let Some(git_hosting_provider_registry) =
+        cx.update(|cx| GitHostingProviderRegistry::try_global(cx))
+    {
+        git_hosting_providers::register_additional_providers(
+            git_hosting_provider_registry,
+            backend,
+        )
+        .await;
+    }
+}
+
+#[cfg(not(feature = "git-hosting-providers"))]
+async fn register_additional_git_hosting_providers(
+    _backend: Arc<dyn GitRepository>,
+    _cx: &mut AsyncApp,
+) {
 }
 
 /// Returns a short name for a linked worktree suitable for UI display
