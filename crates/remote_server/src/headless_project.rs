@@ -4,7 +4,7 @@ use collections::HashMap;
 use collections::HashSet;
 #[cfg(feature = "remote-profiling")]
 use gpui::TasksIncluded;
-use language::File;
+#[cfg(feature = "lsp-log-control")]
 use lsp::LanguageServerId;
 
 #[cfg(feature = "extension-host")]
@@ -24,20 +24,22 @@ use project::{
     LspStore, LspStoreEvent, ManifestTree, PrettierStore, ProjectEnvironment, ProjectPath,
     ToolchainStore, WorktreeId,
     buffer_store::{BufferStore, BufferStoreEvent},
-    debugger::{breakpoint_store::BreakpointStore, dap_store::DapStore},
     git_store::GitStore,
-    lsp_store::log_store::{self, GlobalLogStore, LanguageServerKind, LogKind},
     project_settings::SettingsObserver,
     task_store::TaskStore,
     trusted_worktrees::{PathTrust, RemoteHostLocation, TrustedWorktrees},
     worktree_store::{WorktreeIdCounter, WorktreeStore},
 };
+#[cfg(feature = "debugger-rpc")]
+use project::debugger::{breakpoint_store::BreakpointStore, dap_store::DapStore};
 #[cfg(feature = "agent-server-store")]
 use project::agent_server_store::AgentServerStore;
 #[cfg(feature = "context-server-store")]
 use project::context_server_store::ContextServerStore;
 #[cfg(feature = "image-files")]
 use project::image_store::ImageId;
+#[cfg(feature = "lsp-log-control")]
+use project::lsp_store::log_store::{self, GlobalLogStore, LanguageServerKind, LogKind};
 use rpc::{
     AnyProtoClient, TypedEnvelope,
     proto::{self, REMOTE_SERVER_PEER_ID, REMOTE_SERVER_PROJECT_ID},
@@ -74,7 +76,9 @@ pub struct HeadlessProject {
     pub buffer_store: Entity<BufferStore>,
     pub lsp_store: Entity<LspStore>,
     pub task_store: Entity<TaskStore>,
+    #[cfg(feature = "debugger-rpc")]
     pub dap_store: Entity<DapStore>,
+    #[cfg(feature = "debugger-rpc")]
     pub breakpoint_store: Entity<BreakpointStore>,
     #[cfg(feature = "agent-server-store")]
     pub agent_server_store: Entity<AgentServerStore>,
@@ -110,6 +114,7 @@ pub struct HeadlessAppState {
 impl HeadlessProject {
     pub fn init(cx: &mut App) {
         settings::init(cx);
+        #[cfg(feature = "lsp-log-control")]
         log_store::init(true, cx);
     }
 
@@ -167,6 +172,7 @@ impl HeadlessProject {
             buffer_store
         });
 
+        #[cfg(feature = "debugger-rpc")]
         let breakpoint_store = cx.new(|_| {
             let mut breakpoint_store =
                 BreakpointStore::local(worktree_store.clone(), buffer_store.clone());
@@ -175,6 +181,7 @@ impl HeadlessProject {
             breakpoint_store
         });
 
+        #[cfg(feature = "debugger-rpc")]
         let dap_store = cx.new(|cx| {
             let mut dap_store = DapStore::new_local(
                 http_client.clone(),
@@ -314,7 +321,9 @@ impl HeadlessProject {
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &lsp_store);
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &task_store);
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &toolchain_store);
+        #[cfg(feature = "debugger-rpc")]
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &dap_store);
+        #[cfg(feature = "debugger-rpc")]
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &breakpoint_store);
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &settings_observer);
         session.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &git_store);
@@ -343,6 +352,7 @@ impl HeadlessProject {
         session.add_entity_request_handler(Self::handle_open_server_settings);
         #[cfg(feature = "directory-environment")]
         session.add_entity_request_handler(Self::handle_get_directory_environment);
+        #[cfg(feature = "lsp-log-control")]
         session.add_entity_message_handler(Self::handle_toggle_lsp_logs);
         #[cfg(feature = "image-files")]
         session.add_entity_request_handler(Self::handle_open_image_by_path);
@@ -400,7 +410,9 @@ impl HeadlessProject {
             buffer_store,
             lsp_store,
             task_store,
+            #[cfg(feature = "debugger-rpc")]
             dap_store,
+            #[cfg(feature = "debugger-rpc")]
             breakpoint_store,
             #[cfg(feature = "agent-server-store")]
             agent_server_store,
@@ -445,34 +457,46 @@ impl HeadlessProject {
         event: &LspStoreEvent,
         cx: &mut Context<Self>,
     ) {
+        #[cfg(not(feature = "lsp-log-control"))]
+        let _ = lsp_store;
+
         match event {
             LspStoreEvent::LanguageServerAdded(id, name, worktree_id) => {
-                let log_store = cx
-                    .try_global::<GlobalLogStore>()
-                    .map(|lsp_logs| lsp_logs.0.clone());
-                if let Some(log_store) = log_store {
-                    log_store.update(cx, |log_store, cx| {
-                        log_store.add_language_server(
-                            LanguageServerKind::LocalSsh {
-                                lsp_store: self.lsp_store.downgrade(),
-                            },
-                            *id,
-                            Some(name.clone()),
-                            *worktree_id,
-                            lsp_store.read(cx).language_server_for_id(*id),
-                            cx,
-                        );
-                    });
+                #[cfg(not(feature = "lsp-log-control"))]
+                let _ = (id, name, worktree_id);
+
+                #[cfg(feature = "lsp-log-control")]
+                {
+                    let log_store = cx
+                        .try_global::<GlobalLogStore>()
+                        .map(|lsp_logs| lsp_logs.0.clone());
+                    if let Some(log_store) = log_store {
+                        log_store.update(cx, |log_store, cx| {
+                            log_store.add_language_server(
+                                LanguageServerKind::LocalSsh {
+                                    lsp_store: self.lsp_store.downgrade(),
+                                },
+                                *id,
+                                Some(name.clone()),
+                                *worktree_id,
+                                lsp_store.read(cx).language_server_for_id(*id),
+                                cx,
+                            );
+                        });
+                    }
                 }
             }
             LspStoreEvent::LanguageServerRemoved(id) => {
-                let log_store = cx
-                    .try_global::<GlobalLogStore>()
-                    .map(|lsp_logs| lsp_logs.0.clone());
-                if let Some(log_store) = log_store {
-                    log_store.update(cx, |log_store, cx| {
-                        log_store.remove_language_server(*id, cx);
-                    });
+                #[cfg(feature = "lsp-log-control")]
+                {
+                    let log_store = cx
+                        .try_global::<GlobalLogStore>()
+                        .map(|lsp_logs| lsp_logs.0.clone());
+                    if let Some(log_store) = log_store {
+                        log_store.update(cx, |log_store, cx| {
+                            log_store.remove_language_server(*id, cx);
+                        });
+                    }
                 }
                 self.session
                     .send(proto::UpdateLanguageServer {
@@ -894,6 +918,7 @@ impl HeadlessProject {
         })
     }
 
+    #[cfg(feature = "lsp-log-control")]
     async fn handle_toggle_lsp_logs(
         _: Entity<Self>,
         envelope: TypedEnvelope<proto::ToggleLspLogs>,
