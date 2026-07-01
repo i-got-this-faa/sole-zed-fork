@@ -38,7 +38,7 @@ git-hosting-providers = [
     "project/git-hosting-providers",
     "dep:git_hosting_providers",
 ]
-image-files = ["dep:image"]
+image-files = ["dep:image", "project/image-files"]
 json-schema-store = ["dep:json_schema_store"]
 kernel-processes = ["dep:uuid"]
 language-extension = ["dep:language_extension", "extension-host"]

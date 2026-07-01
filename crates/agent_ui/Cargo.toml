@@ -86,6 +86,7 @@ project = { workspace = true, features = [
     "agent-server-downloads",
     "context-server-oauth",
     "extension-context-servers",
+    "image-files",
     "terminal",
 ] }
 prompt_store.workspace = true

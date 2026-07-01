@@ -49,7 +49,7 @@ language_models.workspace = true
 log.workspace = true
 parking_lot.workspace = true
 paths.workspace = true
-project.workspace = true
+project = { workspace = true, features = ["image-files"] }
 prompt_store.workspace = true
 quick-xml.workspace = true
 regex.workspace = true

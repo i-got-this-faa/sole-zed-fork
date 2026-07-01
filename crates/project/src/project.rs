@@ -8,6 +8,7 @@ pub mod context_server_store;
 pub mod debounced_delay;
 pub mod debugger;
 pub mod git_store;
+#[cfg(feature = "image-files")]
 pub mod image_store;
 pub mod lsp_command;
 pub mod lsp_store;
@@ -81,7 +82,9 @@ use futures::{
     channel::mpsc::{self, UnboundedReceiver},
     future::try_join_all,
 };
+#[cfg(feature = "image-files")]
 pub use image_store::{ImageItem, ImageStore};
+#[cfg(feature = "image-files")]
 use image_store::{ImageItemEvent, ImageStoreEvent};
 
 use ::git::{blame::Blame, status::FileStatus};
@@ -235,6 +238,7 @@ pub struct Project {
     worktree_store: Entity<WorktreeStore>,
     buffer_store: Entity<BufferStore>,
     context_server_store: Entity<ContextServerStore>,
+    #[cfg(feature = "image-files")]
     image_store: Entity<ImageStore>,
     lsp_store: Entity<LspStore>,
     _subscriptions: Vec<gpui::Subscription>,
@@ -1192,6 +1196,7 @@ impl Project {
         client.add_entity_request_handler(Self::handle_open_new_buffer);
         client.add_entity_message_handler(Self::handle_create_buffer_for_peer);
         client.add_entity_message_handler(Self::handle_toggle_lsp_logs);
+        #[cfg(feature = "image-files")]
         client.add_entity_message_handler(Self::handle_create_image_for_peer);
         client.add_entity_request_handler(Self::handle_find_search_candidates_chunk);
         client.add_entity_message_handler(Self::handle_find_search_candidates_cancel);
@@ -1287,9 +1292,13 @@ impl Project {
             });
             cx.subscribe(&dap_store, Self::on_dap_store_event).detach();
 
-            let image_store = cx.new(|cx| ImageStore::local(worktree_store.clone(), cx));
-            cx.subscribe(&image_store, Self::on_image_store_event)
-                .detach();
+            #[cfg(feature = "image-files")]
+            let image_store = {
+                let image_store = cx.new(|cx| ImageStore::local(worktree_store.clone(), cx));
+                cx.subscribe(&image_store, Self::on_image_store_event)
+                    .detach();
+                image_store
+            };
 
             let prettier_store = cx.new(|cx| {
                 PrettierStore::new(
@@ -1370,6 +1379,7 @@ impl Project {
                 collaborators: Default::default(),
                 worktree_store,
                 buffer_store,
+                #[cfg(feature = "image-files")]
                 image_store,
                 lsp_store,
                 context_server_store,
@@ -1471,6 +1481,7 @@ impl Project {
                     cx,
                 )
             });
+            #[cfg(feature = "image-files")]
             let image_store = cx.new(|cx| {
                 ImageStore::remote(
                     worktree_store.clone(),
@@ -1597,6 +1608,7 @@ impl Project {
                 collaborators: Default::default(),
                 worktree_store,
                 buffer_store,
+                #[cfg(feature = "image-files")]
                 image_store,
                 lsp_store,
                 context_server_store,
@@ -1668,6 +1680,7 @@ impl Project {
             remote_proto.subscribe_to_entity(REMOTE_SERVER_PROJECT_ID, &this.agent_server_store);
 
             remote_proto.add_entity_message_handler(Self::handle_create_buffer_for_peer);
+            #[cfg(feature = "image-files")]
             remote_proto.add_entity_message_handler(Self::handle_create_image_for_peer);
             remote_proto.add_entity_message_handler(Self::handle_create_file_for_peer);
             remote_proto.add_entity_message_handler(Self::handle_update_worktree);
@@ -1779,6 +1792,7 @@ impl Project {
         let buffer_store = cx.new(|cx| {
             BufferStore::remote(worktree_store.clone(), client.clone().into(), remote_id, cx)
         });
+        #[cfg(feature = "image-files")]
         let image_store = cx.new(|cx| {
             ImageStore::remote(worktree_store.clone(), client.clone().into(), remote_id, cx)
         });
@@ -1899,6 +1913,7 @@ impl Project {
             let mut project = Self {
                 buffer_ordered_messages_tx: tx,
                 buffer_store: buffer_store.clone(),
+                #[cfg(feature = "image-files")]
                 image_store,
                 worktree_store: worktree_store.clone(),
                 lsp_store: lsp_store.clone(),
@@ -3370,6 +3385,7 @@ impl Project {
         Ok(())
     }
 
+    #[cfg(feature = "image-files")]
     pub fn open_image(
         &mut self,
         path: impl Into<ProjectPath>,
@@ -3543,6 +3559,7 @@ impl Project {
         }
     }
 
+    #[cfg(feature = "image-files")]
     fn on_image_store_event(
         &mut self,
         _: Entity<ImageStore>,
@@ -3913,6 +3930,7 @@ impl Project {
         None
     }
 
+    #[cfg(feature = "image-files")]
     fn on_image_event(
         &mut self,
         image: Entity<ImageItem>,
@@ -4200,6 +4218,7 @@ impl Project {
         })
     }
 
+    #[cfg(feature = "image-files")]
     pub fn reload_images(
         &self,
         images: HashSet<Entity<ImageItem>>,
@@ -5802,6 +5821,7 @@ impl Project {
         buffer.read(cx).remote_id()
     }
 
+    #[cfg(feature = "image-files")]
     async fn handle_create_image_for_peer(
         this: Entity<Self>,
         envelope: TypedEnvelope<proto::CreateImageForPeer>,

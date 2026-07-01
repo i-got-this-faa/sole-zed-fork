@@ -23,12 +23,14 @@ agent-server-downloads = ["http_client/github-download"]
 context-server-oauth = ["dep:zed_credentials_provider"]
 extension-context-servers = ["dep:extension"]
 git-hosting-providers = ["dep:git_hosting_providers"]
+image-files = ["dep:image"]
 terminal = ["dep:terminal"]
 test-support = [
     "agent-server-downloads",
     "context-server-oauth",
     "extension-context-servers",
     "git-hosting-providers",
+    "image-files",
     "buffer_diff/test-support",
     "client/test-support",
     "language/test-support",
@@ -70,7 +72,7 @@ git_hosting_providers = { workspace = true, optional = true }
 globset.workspace = true
 gpui.workspace = true
 http_client.workspace = true
-image.workspace = true
+image = { workspace = true, optional = true }
 itertools.workspace = true
 indexmap.workspace = true
 language.workspace = true

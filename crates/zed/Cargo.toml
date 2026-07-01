@@ -171,6 +171,7 @@ project = { workspace = true, features = [
     "context-server-oauth",
     "extension-context-servers",
     "git-hosting-providers",
+    "image-files",
 ] }
 project_panel.workspace = true
 project_symbols.workspace = true
